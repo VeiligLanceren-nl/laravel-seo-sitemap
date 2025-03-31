@@ -109,4 +109,4 @@ Make sure you have SQLite enabled for in-memory testing.
 
 ## 📄 License
 
-MIT © VeiligLanceren
+MIT © Veilig Lanceren
