@@ -1,0 +1,38 @@
+{
+    "name": "veiliglanceren/laravel-seo-sitemap",
+    "description": "Laravel Sitemap package to optimize your website in search engines",
+    "version": "1.0.0",
+    "type": "library",
+    "require": {
+        "laravel/framework": "^12.4",
+        "illuminate/support": "^12.4",
+        "ext-dom": "*",
+        "ext-simplexml": "*"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^10.1",
+        "pestphp/pest": "^3.8",
+        "pestphp/pest-plugin-laravel": "^3.1",
+        "phpunit/phpunit": "^11.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "VeiligLanceren\\LaravelSeoSitemap\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Niels Hamelink"
+        }
+    ],
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
+}
