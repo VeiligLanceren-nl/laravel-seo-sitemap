@@ -1,3 +1,7 @@
+![Static Badge](https://img.shields.io/badge/Version-1.1-blue)
+![Static Badge](https://img.shields.io/badge/Laravel-12.*-blue)
+![Static Badge](https://img.shields.io/badge/PHP->_8.3-blue)
+
 ![Veilig Lanceren](/veilig-lanceren-logo.png)
 
 This package is maintained by VeiligLanceren.nl, your partner in website development and everything else to power up your online company. More information available on [our website](https://veiliglanceren.nl).

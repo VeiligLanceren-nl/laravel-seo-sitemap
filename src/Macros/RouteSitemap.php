@@ -2,10 +2,11 @@
 
 namespace VeiligLanceren\LaravelSeoSitemap\Macros;
 
-use Illuminate\Routing\Route as RoutingRoute;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Route;
+use VeiligLanceren\LaravelSeoSitemap\Support\ChangeFrequency;
 use VeiligLanceren\LaravelSeoSitemap\Url;
+use Illuminate\Routing\Route as RoutingRoute;
 
 class RouteSitemap
 {
@@ -35,10 +36,17 @@ class RouteSitemap
                     && ($route->defaults['sitemap'] ?? false);
             })
             ->map(function (RoutingRoute $route) {
-                $priority = $route->defaults['sitemap_priority'] ?? 0.5;
+                $url = Url::make(url($route->uri()));
 
-                return Url::make(url($route->uri()))
-                    ->priority((float) $priority);
+                if (isset($route->defaults['sitemap_priority'])) {
+                    $url->priority((float) $route->defaults['sitemap_priority']);
+                }
+
+                if (isset($route->defaults['sitemap_changefreq'])) {
+                    $url->changefreq(ChangeFrequency::from($route->defaults['sitemap_changefreq']));
+                }
+
+                return $url;
             })
             ->values();
     }
