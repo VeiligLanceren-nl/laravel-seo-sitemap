@@ -5,8 +5,7 @@ The `Sitemap` class is the main entry point for generating sitemaps from either 
 ## Create a Sitemap manually
 
 ```php
-use VeiligLanceren\LaravelSeoSitemap\Sitemap;
-use VeiligLanceren\LaravelSeoSitemap\Url;
+use VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Url;use VeiligLanceren\LaravelSeoSitemap\Sitemap\Sitemap;
 
 $sitemap = Sitemap::make([
     Url::make('https://example.com')

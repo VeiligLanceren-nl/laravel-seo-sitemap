@@ -7,7 +7,7 @@ use Illuminate\Support\Collection;
 interface SitemapProviderInterface
 {
     /**
-     * @return Collection<\VeiligLanceren\LaravelSeoSitemap\Url>
+     * @return Collection<\VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Url>
      */
     public function getUrls(): Collection;
 }

@@ -58,15 +58,20 @@ php artisan migrate
 
 ## 🧭 Usage
 
-### 📄 [Full Sitemap class documentation](docs/sitemap.md)
-### 📄 [Full Url class documentation](docs/url.md)
+- 📄 [Full Sitemap class documentation](docs/sitemap.md)
+- 📄 [Url class documentation](docs/url.md)
+- 📄 [Url image documentation](docs/image.md)
+- 📄 [Sitemap Index documentation](docs/sitemapindex.md)
 
-#### Basic usage
+### Basic usage
 
 ```php
+use VeiligLanceren\LaravelSeoSitemap\Support\Enums\ChangeFrequency;
+
 Route::get('/contact', fn () => view('contact'))
     ->name('contact')
     ->sitemap() // 👈 sets sitemap = true
+    ->changefreq(ChangeFrequency::WEEKLY) // 👈 sets change frequency to WEEKLY
     ->priority('0.8'); // 👈 sets priority = 0.8
 ```
 
@@ -75,17 +80,86 @@ $sitemap = Sitemap::fromRoutes();
 $sitemap->save('sitemap.xml', 'public');
 ```
 
+### Static usage
+
 ```php
-use VeiligLanceren\LaravelSeoSitemap\Url;
+use VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Url;
 use VeiligLanceren\LaravelSeoSitemap\Support\Enums\ChangeFrequency;
 
-Url::make('https://example.com')
+$url = Url::make('https://example.com')
     ->lastmod('2025-01-01')
     ->priority('0.8')
     ->changefreq(ChangeFrequency::WEEKLY);
+
+$sitemap = Sitemap::make([$url]);
+$sitemap->save('sitemap.xml', 'public');
 ```
 
 ---
+
+### Sitemap index usage
+
+```php
+use VeiligLanceren\LaravelSeoSitemap\Sitemap\SitemapIndex;
+
+$sitemapIndex = SitemapIndex::make([
+    'https://example.com/sitemap-posts.xml',
+    'https://example.com/sitemap-pages.xml',
+]);
+
+$sitemapIndex->toXml();
+```
+
+To save:
+
+```php
+Storage::disk('public')->put('sitemap.xml', $sitemapIndex->toXml());
+```
+
+### 🖼 Adding Images to URLs
+
+You can attach one or more `<image:image>` elements to a `Url` entry:
+
+```php
+use VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Url;
+use VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Image;
+
+$url = Url::make('https://example.com')
+    ->addImage(Image::make('https://example.com/image1.jpg')->title('Hero 1'))
+    ->addImage(Image::make('https://example.com/image2.jpg')->title('Hero 2'));
+```
+
+These images will be embedded under the `<url>` node in the generated XML:
+
+```xml
+<url>
+  <loc>https://example.com</loc>
+  <image:image>
+    <image:loc>https://example.com/image1.jpg</image:loc>
+    <image:title>Hero 1</image:title>
+  </image:image>
+  <image:image>
+    <image:loc>https://example.com/image2.jpg</image:loc>
+    <image:title>Hero 2</image:title>
+  </image:image>
+</url>
+```
+
+Each `Image` supports optional fields: `caption`, `title`, `license`, and `geo_location`.
+
+## Change frequencies
+
+The package is providing an enum with the possible change frequencies as documented on [sitemaps.org](https://www.sitemaps.org/protocol.html#changefreqdef).
+
+### Available frequencies
+- `ChangeFrequency::ALWAYS`
+- `ChangeFrequency::HOURLY`
+- `ChangeFrequency::DAILY`
+- `ChangeFrequency::WEEKLY`
+- `ChangeFrequency::MONTHLY`
+- `ChangeFrequency::YEARLY`
+- `ChangeFrequency::NEVER`
+
 
 ## 🛠 Update `lastmod` via Artisan
 

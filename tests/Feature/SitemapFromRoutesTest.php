@@ -1,31 +1,21 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use VeiligLanceren\LaravelSeoSitemap\Sitemap;
-
-beforeEach(function () {
-    Route::middleware([])->group(function () {
-        Route::get('/included', fn () => 'Included')
-            ->name('included')
-            ->defaults('sitemap', true)
-            ->defaults('sitemap_priority', '0.8');
-
-        Route::get('/excluded', fn () => 'Excluded')
-            ->name('excluded')
-            ->defaults('sitemap', false);
-
-        Route::post('/post-only', fn () => 'Post')
-            ->name('post.only')
-            ->defaults('sitemap', true);
-    });
-});
+use Illuminate\Support\Facades\URL;
+use VeiligLanceren\LaravelSeoSitemap\Sitemap\Sitemap;
 
 it('includes only GET routes with sitemap default', function () {
+    Route::get('/included', fn () => 'included')
+        ->name('included')
+        ->sitemap()
+        ->priority('0.8');
+
+    Route::post('/excluded', fn () => 'excluded')->name('excluded')->sitemap();
+
     $sitemap = Sitemap::fromRoutes();
+    $items = $sitemap->toArray()['items'];
 
-    $urls = $sitemap->toArray()['urls'];
-
-    expect($urls)->toHaveCount(1);
-    expect($urls[0]['loc'])->toBe(url('/included'));
-    expect($urls[0]['priority'])->toBe('0.8');
+    expect($items)->toHaveCount(1);
+    expect($items[0]['loc'])->toBe(URL::to('/included'));
+    expect($items[0]['priority'])->toBe('0.8');
 });
