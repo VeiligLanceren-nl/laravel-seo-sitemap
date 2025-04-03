@@ -34,11 +34,13 @@ class SitemapServiceProvider extends ServiceProvider
         ], 'sitemap-config');
 
         if (is_dir(__DIR__ . '/../database/migrations')) {
-            $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+            $this->publishes([
+                __DIR__ . '/../database/migrations' => database_path('migrations'),
+            ], 'sitemap-migration');
         }
 
         if (file_exists(__DIR__ . '/../routes/web.php')) {
-            $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
+            $this->loadRoutesFrom(__DIR__ . '/../routes/sitemap.php');
         }
 
         if (is_dir(__DIR__ . '/../resources/views')) {

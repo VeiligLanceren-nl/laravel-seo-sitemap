@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Storage;
 use VeiligLanceren\LaravelSeoSitemap\Sitemap;
-use VeiligLanceren\LaravelSeoSitemap\Support\ChangeFrequency;
+use VeiligLanceren\LaravelSeoSitemap\Support\Enums\ChangeFrequency;
 use VeiligLanceren\LaravelSeoSitemap\Url;
 
 beforeEach(function () {

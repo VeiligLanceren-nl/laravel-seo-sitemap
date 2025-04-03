@@ -18,6 +18,7 @@ A lightweight and extensible sitemap generator for Laravel that supports automat
 - Store sitemaps to disk
 - Artisan command to update `lastmod` for routes
 - Fully tested with Pest and Laravel Testbench
+- Default `/sitemap.xml` route that serves the configured sitemap location
 
 ---
 
@@ -34,15 +35,22 @@ composer require veiliglanceren/laravel-seo-sitemap
 If used outside Laravel auto-discovery, register the service provider:
 
 ```php
-// config/app.php
-'providers' => [
+// bootstrap/providers.php
+return [
     VeiligLanceren\LaravelSeoSitemap\SitemapServiceProvider::class,
-],
+];
+```
+
+Publish the `config/sitemap.php` config file:
+
+```bash
+php artisan vendor:publish --tag=sitemap-config
 ```
 
 Publish the migration (if using `lastmod` tracking):
 
 ```bash
+php artisan vendor:publish --tag=sitemap-migration
 php artisan migrate
 ```
 
@@ -69,7 +77,7 @@ $sitemap->save('sitemap.xml', 'public');
 
 ```php
 use VeiligLanceren\LaravelSeoSitemap\Url;
-use VeiligLanceren\LaravelSeoSitemap\Enums\ChangeFrequency;
+use VeiligLanceren\LaravelSeoSitemap\Support\Enums\ChangeFrequency;
 
 Url::make('https://example.com')
     ->lastmod('2025-01-01')

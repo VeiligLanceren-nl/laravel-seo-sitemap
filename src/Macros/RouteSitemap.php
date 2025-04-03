@@ -2,11 +2,11 @@
 
 namespace VeiligLanceren\LaravelSeoSitemap\Macros;
 
+use Illuminate\Routing\Route as RoutingRoute;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Route;
-use VeiligLanceren\LaravelSeoSitemap\Support\ChangeFrequency;
+use VeiligLanceren\LaravelSeoSitemap\Support\Enums\ChangeFrequency;
 use VeiligLanceren\LaravelSeoSitemap\Url;
-use Illuminate\Routing\Route as RoutingRoute;
 
 class RouteSitemap
 {
