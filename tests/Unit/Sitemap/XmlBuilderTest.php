@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Collection;
-use VeiligLanceren\LaravelSeoSitemap\Url;
-use VeiligLanceren\LaravelSeoSitemap\XmlBuilder;
+use VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Url;
+use VeiligLanceren\LaravelSeoSitemap\Sitemap\XmlBuilder;
 
 it('generates valid XML from URLs', function () {
     $urls = Collection::make([

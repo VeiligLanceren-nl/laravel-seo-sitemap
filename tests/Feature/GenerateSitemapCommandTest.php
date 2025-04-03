@@ -35,9 +35,10 @@ it('generates and saves sitemap.xml to disk when CLI options are passed', functi
     ]);
 
     expect($exitCode)->toBe(0);
-    Storage::disk('public')->assertExists($path);
 
+    Storage::disk('public')->assertExists($path);
     $content = Storage::disk('public')->get($path);
+
     expect($content)->toContain('<loc>' . url('/test-sitemap-command') . '</loc>');
 });
 

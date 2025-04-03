@@ -1,6 +1,6 @@
 <?php
 
-namespace VeiligLanceren\LaravelSeoSitemap;
+namespace VeiligLanceren\LaravelSeoSitemap\Sitemap;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
@@ -12,7 +12,7 @@ class Sitemap
     /**
      * @var Collection
      */
-    protected Collection $urls;
+    protected Collection $items;
 
     /**
      * @var array
@@ -24,23 +24,31 @@ class Sitemap
      */
     protected static array $providers = [];
 
+    /**
+     * Sitemap constructor.
+     */
     public function __construct()
     {
-        $this->urls = collect();
+        $this->items = collect();
     }
 
     /**
+     * Create sitemap from routes.
+     *
      * @return self
      */
     public static function fromRoutes(): self
     {
         $sitemap = new static();
-        $sitemap->urls = RouteSitemap::urls();
+
+        $sitemap->items = RouteSitemap::urls();
 
         return $sitemap;
     }
 
     /**
+     * Register a sitemap provider class.
+     *
      * @param string $provider
      * @return void
      */
@@ -50,6 +58,8 @@ class Sitemap
     }
 
     /**
+     * Create sitemap from registered providers.
+     *
      * @return self
      */
     public static function fromProviders(): self
@@ -60,7 +70,7 @@ class Sitemap
             $provider = app($providerClass);
 
             if ($provider instanceof SitemapProviderInterface) {
-                $sitemap->urls = $sitemap->urls->merge($provider->getUrls());
+                $sitemap->items = $sitemap->items->merge($provider->getUrls());
             }
         }
 
@@ -68,41 +78,51 @@ class Sitemap
     }
 
     /**
+     * Merge another sitemap into this one.
+     *
      * @param Sitemap $other
      * @return $this
      */
     public function merge(self $other): self
     {
-        $this->urls = $this->urls->merge($other->urls);
+        $this->items = $this->items->merge($other->items);
+
         return $this;
     }
 
     /**
-     * @param array $urls
+     * Make a new sitemap instance.
+     *
+     * @param array $items
      * @param array $options
-     * @return Sitemap
+     * @return static
      */
-    public static function make(array $urls = [], array $options = []): static
+    public static function make(array $items = [], array $options = []): static
     {
         $instance = new static();
-        $instance->urls = collect($urls);
+
+        $instance->items = collect($items);
         $instance->options = $options;
 
         return $instance;
     }
 
     /**
-     * @param Collection $urls
+     * Set the items.
+     *
+     * @param Collection $items
      * @return $this
      */
-    public function urls(Collection $urls): static
+    public function items(Collection $items): static
     {
-        $this->urls = $urls;
+        $this->items = $items;
 
         return $this;
     }
 
     /**
+     * Set the options.
+     *
      * @param array $options
      * @return $this
      */
@@ -114,32 +134,39 @@ class Sitemap
     }
 
     /**
+     * Save the sitemap to disk.
+     *
      * @param string $path
      * @param string $disk
      * @return void
      */
     public function save(string $path, string $disk): void
     {
-        $xml = XmlBuilder::build($this->urls, $this->options);
+        $xml = XmlBuilder::build($this->items, $this->options);
+
         Storage::disk($disk)->put($path, $xml);
     }
 
     /**
+     * Convert the sitemap to XML string.
+     *
      * @return string
      */
     public function toXml(): string
     {
-        return XmlBuilder::build($this->urls, $this->options);
+        return XmlBuilder::build($this->items, $this->options);
     }
 
     /**
+     * Convert the sitemap to array.
+     *
      * @return array<string, mixed>
      */
     public function toArray(): array
     {
         return [
             'options' => $this->options,
-            'urls' => $this->urls->map(fn (Url $url) => $url->toArray())->all(),
+            'items' => $this->items->map(fn (SitemapItem $item) => $item->toArray())->all(),
         ];
     }
 }

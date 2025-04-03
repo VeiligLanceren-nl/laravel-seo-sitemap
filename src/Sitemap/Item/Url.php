@@ -1,11 +1,12 @@
 <?php
 
-namespace VeiligLanceren\LaravelSeoSitemap;
+namespace VeiligLanceren\LaravelSeoSitemap\Sitemap\Item;
 
 use DateTimeInterface;
+use VeiligLanceren\LaravelSeoSitemap\Sitemap\SitemapItem;
 use VeiligLanceren\LaravelSeoSitemap\Support\Enums\ChangeFrequency;
 
-class Url
+class Url extends SitemapItem
 {
     /**
      * @var string
@@ -28,18 +29,28 @@ class Url
     protected ?string $changefreq = null;
 
     /**
+     * @var Image[]
+     */
+    protected array $images = [];
+
+    /**
      * @param string $loc
+     * @param string|DateTimeInterface|null $lastmod
      * @param string|null $priority
      * @param ChangeFrequency|null $changeFrequency
      * @return static
      */
     public static function make(
         string $loc,
+        string|DateTimeInterface $lastmod = null,
         string $priority = null,
         ChangeFrequency $changeFrequency = null,
-    ): static
-    {
+    ): static {
         $sitemap = (new static())->loc($loc);
+
+        if ($lastmod) {
+            $sitemap->lastmod($lastmod);
+        }
 
         if ($priority) {
             $sitemap->priority($priority);
@@ -59,6 +70,7 @@ class Url
     public function loc(string $loc): static
     {
         $this->loc = $loc;
+
         return $this;
     }
 
@@ -98,15 +110,51 @@ class Url
     }
 
     /**
-     * @return array<string, ?string>
+     * @param Image $image
+     * @return $this
+     */
+    public function addImage(Image $image): static
+    {
+        $this->images[] = $image;
+
+        return $this;
+    }
+
+    /**
+     * @param array $images
+     * @return $this
+     */
+    public function images(array $images): static
+    {
+        $this->images = $images;
+
+        return $this;
+    }
+
+    /**
+     * @return Image[]
+     */
+    public function getImages(): array
+    {
+        return $this->images;
+    }
+
+    /**
+     * @return array<string, mixed>
      */
     public function toArray(): array
     {
-        return array_filter([
+        $data = array_filter([
             'loc' => $this->loc,
             'lastmod' => $this->lastmod,
             'priority' => $this->priority,
             'changefreq' => $this->changefreq,
         ]);
+
+        if (!empty($this->images)) {
+            $data['images'] = array_map(fn(Image $img) => $img->toArray(), $this->images);
+        }
+
+        return $data;
     }
 }

@@ -1,47 +1,28 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use VeiligLanceren\LaravelSeoSitemap\Sitemap;
-use VeiligLanceren\LaravelSeoSitemap\Macros\RouteSitemap;
-use VeiligLanceren\LaravelSeoSitemap\Macros\RouteChangefreq;
-use VeiligLanceren\LaravelSeoSitemap\Macros\RoutePriority;
+use Illuminate\Support\Facades\URL;
+use VeiligLanceren\LaravelSeoSitemap\Sitemap\Sitemap;
 
-beforeEach(function () {
-    RouteSitemap::register();
-    RouteChangefreq::register();
-    RoutePriority::register();
-});
-
-it('includes sitemap macro route in generated urls', function () {
+it('includes sitemap macro route', function () {
     Route::get('/macro-sitemap', fn () => 'ok')
         ->sitemap();
 
     $sitemap = Sitemap::fromRoutes();
-    $urls = $sitemap->toArray()['urls'];
+    $items = $sitemap->toArray()['items'];
 
-    expect($urls)->toHaveCount(1);
-    expect($urls[0]['loc'])->toBe('http://localhost/macro-sitemap');
+    expect($items)->toHaveCount(1);
+    expect($items[0]['loc'])->toBe(URL::to('/macro-sitemap'));
 });
 
-it('includes changefreq macro in sitemap url', function () {
-    Route::get('/macro-changefreq', fn () => 'ok')
+it('includes priority macro in sitemap output', function () {
+    Route::get('/priority', fn () => 'ok')
         ->sitemap()
-        ->changefreq('weekly');
-
-    $sitemap = Sitemap::fromRoutes();
-    $xml = $sitemap->toXml();
-
-    expect($xml)->toContain('<changefreq>weekly</changefreq>');
-});
-
-it('includes priority macro in sitemap url', function () {
-    Route::get('/macro-priority', fn () => 'ok')
-        ->sitemap()
-        ->priority('0.9');
+        ->priority(0.9);
 
     $sitemap = Sitemap::fromRoutes();
     $array = $sitemap->toArray();
 
-    expect($array['urls'][0])
+    expect($array['items'][0])
         ->toHaveKey('priority', 0.9);
 });

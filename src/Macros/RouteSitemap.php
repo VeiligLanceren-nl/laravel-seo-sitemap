@@ -5,8 +5,8 @@ namespace VeiligLanceren\LaravelSeoSitemap\Macros;
 use Illuminate\Routing\Route as RoutingRoute;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Route;
+use VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Url;
 use VeiligLanceren\LaravelSeoSitemap\Support\Enums\ChangeFrequency;
-use VeiligLanceren\LaravelSeoSitemap\Url;
 
 class RouteSitemap
 {
