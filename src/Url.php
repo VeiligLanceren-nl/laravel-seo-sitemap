@@ -3,7 +3,7 @@
 namespace VeiligLanceren\LaravelSeoSitemap;
 
 use DateTimeInterface;
-use VeiligLanceren\LaravelSeoSitemap\Support\ChangeFrequency;
+use VeiligLanceren\LaravelSeoSitemap\Support\Enums\ChangeFrequency;
 
 class Url
 {

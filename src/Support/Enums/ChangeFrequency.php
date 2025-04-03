@@ -1,6 +1,6 @@
 <?php
 
-namespace VeiligLanceren\LaravelSeoSitemap\Support;
+namespace VeiligLanceren\LaravelSeoSitemap\Support\Enums;
 
 enum ChangeFrequency: string
 {
