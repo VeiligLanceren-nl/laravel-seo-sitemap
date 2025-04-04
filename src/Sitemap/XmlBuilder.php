@@ -38,7 +38,15 @@ class XmlBuilder
             }
 
             if ($item instanceof Image) {
-                // Optional: skip standalone Image or add as top-level <url>?
+                $urlElement = $xml->addChild('url');
+
+                $urlElement->addChild('loc', htmlspecialchars($item->toArray()['loc'] ?? ''));
+
+                $imageElement = $urlElement->addChild('image:image', null, 'http://www.google.com/schemas/sitemap-image/1.1');
+
+                foreach ($item->toArray() as $imgKey => $imgVal) {
+                    $imageElement->addChild("image:$imgKey", htmlspecialchars($imgVal), 'http://www.google.com/schemas/sitemap-image/1.1');
+                }
             }
         }
 

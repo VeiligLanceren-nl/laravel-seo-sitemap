@@ -3,6 +3,8 @@
 namespace VeiligLanceren\LaravelSeoSitemap\Macros;
 
 use Illuminate\Routing\Route as RoutingRoute;
+use VeiligLanceren\LaravelSeoSitemap\Popo\RouteSitemapDefaults;
+use VeiligLanceren\LaravelSeoSitemap\Support\Enums\ChangeFrequency;
 
 class RouteChangefreq
 {
@@ -11,9 +13,16 @@ class RouteChangefreq
      */
     public static function register(): void
     {
-        RoutingRoute::macro('changefreq', function (string $value) {
+        RoutingRoute::macro('changefreq', function (string|ChangeFrequency $changeFrequency) {
             /** @var RoutingRoute $this */
-            $this->defaults['sitemap_changefreq'] = $value;
+            $existing = $this->defaults['sitemap'] ?? new RouteSitemapDefaults();
+
+            $existing->enabled = true;
+            $existing->changefreq = $changeFrequency instanceof ChangeFrequency
+                ? $changeFrequency
+                : ChangeFrequency::from($changeFrequency);
+
+            $this->defaults['sitemap'] = $existing;
 
             return $this;
         });

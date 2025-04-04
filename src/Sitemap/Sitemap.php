@@ -2,8 +2,11 @@
 
 namespace VeiligLanceren\LaravelSeoSitemap\Sitemap;
 
+use Traversable;
+use ArrayIterator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
+use VeiligLanceren\LaravelSeoSitemap\Exceptions\SitemapTooLargeException;
 use VeiligLanceren\LaravelSeoSitemap\Macros\RouteSitemap;
 use VeiligLanceren\LaravelSeoSitemap\Interfaces\SitemapProviderInterface;
 
@@ -23,6 +26,16 @@ class Sitemap
      * @var array
      */
     protected static array $providers = [];
+
+    /**
+     * @var int|null
+     */
+    protected ?int $maxItems = 500;
+
+    /**
+     * @var bool
+     */
+    protected bool $throwOnLimit = true;
 
     /**
      * Sitemap constructor.
@@ -61,6 +74,7 @@ class Sitemap
      * Create sitemap from registered providers.
      *
      * @return self
+     * @throws SitemapTooLargeException
      */
     public static function fromProviders(): self
     {
@@ -70,7 +84,7 @@ class Sitemap
             $provider = app($providerClass);
 
             if ($provider instanceof SitemapProviderInterface) {
-                $sitemap->items = $sitemap->items->merge($provider->getUrls());
+                $sitemap->addMany($provider->getUrls());
             }
         }
 
@@ -112,10 +126,12 @@ class Sitemap
      *
      * @param Collection $items
      * @return $this
+     * @throws SitemapTooLargeException
      */
     public function items(Collection $items): static
     {
-        $this->items = $items;
+        $this->items = collect();
+        $this->addMany($items);
 
         return $this;
     }
@@ -131,6 +147,75 @@ class Sitemap
         $this->options = $options;
 
         return $this;
+    }
+
+    /**
+     * @param int|null $maxItems
+     * @param bool $throw
+     * @return $this
+     */
+    public function enforceLimit(?int $maxItems = 500, bool $throw = true): static
+    {
+        $this->maxItems = $maxItems;
+        $this->throwOnLimit = $throw;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function bypassLimit(): static
+    {
+        return $this->enforceLimit($this->maxItems, false);
+    }
+
+    /**
+     * @param SitemapItem $item
+     * @return void
+     * @throws SitemapTooLargeException
+     */
+    public function add(SitemapItem $item): void
+    {
+        $this->guardMaxItems(1);
+        $this->items->push($item);
+    }
+
+    /**
+     * @param iterable $items
+     * @return void
+     * @throws SitemapTooLargeException
+     */
+    public function addMany(iterable $items): void
+    {
+        $count = is_countable($items)
+            ? count($items)
+            : iterator_count(
+                $items instanceof Traversable
+                    ? $items
+                    : new ArrayIterator($items)
+            );
+        $this->guardMaxItems($count);
+
+        foreach ($items as $item) {
+            $this->items->push($item);
+        }
+    }
+
+    /**
+     * @param int $adding
+     * @return void
+     * @throws SitemapTooLargeException
+     */
+    protected function guardMaxItems(int $adding): void
+    {
+        if (! $this->throwOnLimit || $this->maxItems === null) {
+            return;
+        }
+
+        if ($this->items->count() + $adding > $this->maxItems) {
+            throw new SitemapTooLargeException($this->maxItems);
+        }
     }
 
     /**

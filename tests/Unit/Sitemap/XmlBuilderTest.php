@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Collection;
 use VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Url;
+use VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Image;
 use VeiligLanceren\LaravelSeoSitemap\Sitemap\XmlBuilder;
 
 it('generates valid XML from URLs', function () {
@@ -13,8 +14,8 @@ it('generates valid XML from URLs', function () {
         Url::make('https://example.com/about')
             ->lastmod('2024-01-02'),
     ]);
-    $builder = new XmlBuilder();
-    $xml = $builder->build($urls);
+
+    $xml = XmlBuilder::build($urls);
 
     expect($xml)->toBeString();
     expect(simplexml_load_string($xml))->not()->toBeFalse();
@@ -25,9 +26,32 @@ it('generates valid XML from URLs', function () {
 
 it('respects pretty option in XML output', function () {
     $url = Url::make('https://example.com');
-    $builder = new XmlBuilder();
 
-    $xml = $builder->build(Collection::make([$url]));
+    $xml = XmlBuilder::build(Collection::make([$url]), ['pretty' => true]);
 
     expect($xml)->toContain("\n");
+});
+
+it('includes <image:image> when url has images', function () {
+    $url = Url::make('https://example.com/product')
+        ->addImage(Image::make('https://example.com/image.jpg')->caption('Product Image'));
+
+    $xml = XmlBuilder::build(Collection::make([$url]));
+
+    expect($xml)->toContain('<image:image');
+    expect($xml)->toContain('<image:loc>https://example.com/image.jpg</image:loc>');
+    expect($xml)->toContain('<image:caption>Product Image</image:caption>');
+});
+
+it('generates standalone image <url> blocks for Image items', function () {
+    $image = Image::make('https://example.com/standalone.jpg')
+        ->caption('Standalone Image');
+
+    $xml = XmlBuilder::build(Collection::make([$image]));
+
+    expect($xml)->toContain('<url>');
+    expect($xml)->toContain('<loc>https://example.com/standalone.jpg</loc>');
+    expect($xml)->toContain('<image:image');
+    expect($xml)->toContain('<image:loc>https://example.com/standalone.jpg</image:loc>');
+    expect($xml)->toContain('<image:caption>Standalone Image</image:caption>');
 });

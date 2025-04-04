@@ -2,7 +2,9 @@
 
 namespace VeiligLanceren\LaravelSeoSitemap\Sitemap\Item;
 
-class Image
+use VeiligLanceren\LaravelSeoSitemap\Sitemap\SitemapItem;
+
+class Image extends SitemapItem
 {
     /**
      * @var string

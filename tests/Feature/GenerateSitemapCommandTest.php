@@ -10,7 +10,7 @@ beforeEach(function () {
 
     Route::get('/test-sitemap-command', fn () => 'Test')
         ->name('test.sitemap')
-        ->sitemap('0.9');
+        ->sitemap();
 });
 
 it('generates and saves sitemap.xml to default disk and path from config', function () {

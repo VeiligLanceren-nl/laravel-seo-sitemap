@@ -68,11 +68,11 @@ php artisan migrate
 ```php
 use VeiligLanceren\LaravelSeoSitemap\Support\Enums\ChangeFrequency;
 
-Route::get('/contact', fn () => view('contact'))
-    ->name('contact')
-    ->sitemap() // 👈 sets sitemap = true
-    ->changefreq(ChangeFrequency::WEEKLY) // 👈 sets change frequency to WEEKLY
-    ->priority('0.8'); // 👈 sets priority = 0.8
+Route::get('/contact', [ContactController::class, 'index'])
+    ->name('contact')                         // 🔖 Sets the route name
+    ->sitemap()                               // ✅ Include in sitemap
+    ->changefreq(ChangeFrequency::WEEKLY)     // ♻️  Update frequency: weekly
+    ->priority('0.8');                        // ⭐ Priority for search engines
 ```
 
 ```php
