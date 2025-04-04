@@ -2,11 +2,12 @@
 
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
-use VeiligLanceren\LaravelSeoSitemap\Interfaces\SitemapProviderInterface;
-use VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Image;
-use VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Url;
 use VeiligLanceren\LaravelSeoSitemap\Sitemap\Sitemap;
+use VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Url;
+use VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Image;
 use VeiligLanceren\LaravelSeoSitemap\Support\Enums\ChangeFrequency;
+use VeiligLanceren\LaravelSeoSitemap\Exceptions\SitemapTooLargeException;
+use VeiligLanceren\LaravelSeoSitemap\Interfaces\SitemapProviderInterface;
 
 beforeEach(function () {
     Storage::fake('public');
@@ -15,7 +16,7 @@ beforeEach(function () {
 
 it('creates a sitemap with loc only', function () {
     $sitemap = Sitemap::make([
-        \VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Url::make('https://example.com')
+        Url::make('https://example.com')
     ]);
 
     expect($sitemap->toArray())->toBe([
@@ -26,7 +27,7 @@ it('creates a sitemap with loc only', function () {
 
 it('creates a sitemap with loc and lastmod', function () {
     $sitemap = Sitemap::make([
-        \VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Url::make('https://example.com')->lastmod('2024-01-01')
+        Url::make('https://example.com')->lastmod('2024-01-01')
     ]);
 
     expect($sitemap->toArray())->toBe([
@@ -37,7 +38,7 @@ it('creates a sitemap with loc and lastmod', function () {
 
 it('creates a sitemap with loc, lastmod, and changefreq', function () {
     $sitemap = Sitemap::make([
-        \VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Url::make('https://example.com')
+        Url::make('https://example.com')
             ->lastmod('2024-01-01')
             ->changefreq(ChangeFrequency::WEEKLY)
     ]);
@@ -58,7 +59,7 @@ it('creates a sitemap with loc, lastmod, and changefreq', function () {
 
 it('creates pretty XML when enabled', function () {
     $sitemap = Sitemap::make([
-        \VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Url::make('https://example.com')->lastmod('2025-01-01')
+        Url::make('https://example.com')->lastmod('2025-01-01')
     ], [
         'pretty' => true
     ]);
@@ -73,7 +74,7 @@ it('creates pretty XML when enabled', function () {
 
 it('saves the sitemap to disk', function () {
     $sitemap = Sitemap::make([
-        \VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Url::make('https://example.com')->lastmod('2025-01-01')
+        Url::make('https://example.com')->lastmod('2025-01-01')
     ]);
 
     $sitemap->save('sitemap.xml', 'public');
@@ -84,7 +85,7 @@ it('saves the sitemap to disk', function () {
 });
 
 it('includes images in the sitemap array and XML output', function () {
-    $url = \VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Url::make('https://example.com')
+    $url = Url::make('https://example.com')
         ->addImage(Image::make('https://example.com/image.jpg')
             ->caption('Homepage')
             ->title('Hero image')
@@ -150,4 +151,56 @@ it('loads URLs from registered providers', function () {
 
     expect($items)->toHaveCount(1);
     expect($items[0]['loc'])->toBe('https://example.com/from-provider');
+});
+
+it('throws an exception when max item count is exceeded', function () {
+    $sitemap = Sitemap::make()
+        ->enforceLimit(3, true);
+    $sitemap->add(Url::make('https://example.com/1'));
+    $sitemap->add(Url::make('https://example.com/2'));
+    $sitemap->add(Url::make('https://example.com/3'));
+    $sitemap->add(Url::make('https://example.com/4'));
+})->throws(SitemapTooLargeException::class, 'Sitemap exceeds the maximum allowed number of items: 3');
+
+it('throws an exception when addMany exceeds max item count', function () {
+    $urls = [
+        Url::make('https://example.com/a'),
+        Url::make('https://example.com/b'),
+        Url::make('https://example.com/c'),
+        Url::make('https://example.com/d'),
+    ];
+
+    $sitemap = Sitemap::make()->enforceLimit(3, true);
+    $sitemap->addMany($urls);
+})->throws(SitemapTooLargeException::class);
+
+it('does not throw if throwOnLimit is false', function () {
+    $sitemap = Sitemap::make()
+        ->enforceLimit(2, false);
+
+    $sitemap->add(Url::make('https://example.com/1'));
+    $sitemap->add(Url::make('https://example.com/2'));
+    $sitemap->add(Url::make('https://example.com/3'));
+
+    expect($sitemap->toArray()['items'])->toHaveCount(3);
+});
+
+it('enforces the default limit of 500 items', function () {
+    $sitemap = Sitemap::make();
+
+    for ($i = 1; $i <= 500; $i++) {
+        $sitemap->add(Url::make("https://example.com/page-{$i}"));
+    }
+
+    $sitemap->add(Url::make("https://example.com/page-501"));
+})->throws(SitemapTooLargeException::class, 'Sitemap exceeds the maximum allowed number of items: 500');
+
+it('can bypass the limit using bypassLimit', function () {
+    $sitemap = Sitemap::make()->bypassLimit();
+
+    for ($i = 1; $i <= 550; $i++) {
+        $sitemap->add(Url::make("https://example.com/page-{$i}"));
+    }
+
+    expect($sitemap->toArray()['items'])->toHaveCount(550);
 });

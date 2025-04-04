@@ -2,11 +2,11 @@
 
 namespace VeiligLanceren\LaravelSeoSitemap\Macros;
 
-use Illuminate\Routing\Route as RoutingRoute;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Routing\Route as RoutingRoute;
 use VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Url;
-use VeiligLanceren\LaravelSeoSitemap\Support\Enums\ChangeFrequency;
+use VeiligLanceren\LaravelSeoSitemap\Popo\RouteSitemapDefaults;
 
 class RouteSitemap
 {
@@ -15,9 +15,17 @@ class RouteSitemap
      */
     public static function register(): void
     {
-        RoutingRoute::macro('sitemap', function () {
+        RoutingRoute::macro('sitemap', function (array $parameters = []) {
             /** @var RoutingRoute $this */
-            $this->defaults['sitemap'] = true;
+            $existing = $this->defaults['sitemap'] ?? new RouteSitemapDefaults();
+
+            $existing->enabled = true;
+
+            if (is_array($parameters)) {
+                $existing->parameters = $parameters;
+            }
+
+            $this->defaults['sitemap'] = $existing;
 
             return $this;
         });
@@ -35,18 +43,47 @@ class RouteSitemap
                 return in_array('GET', $route->methods())
                     && ($route->defaults['sitemap'] ?? false);
             })
-            ->map(function (RoutingRoute $route) {
-                $url = Url::make(url($route->uri()));
+            ->filter(function (RoutingRoute $route) {
+                return in_array('GET', $route->methods())
+                    && ($route->defaults['sitemap'] ?? null) instanceof RouteSitemapDefaults
+                    && $route->defaults['sitemap']->enabled;
+            })
+            ->flatMap(function (RoutingRoute $route) {
+                /** @var RouteSitemapDefaults $defaults */
+                $defaults = $route->defaults['sitemap'];
+                $uri = $route->uri();
 
-                if (isset($route->defaults['sitemap_priority'])) {
-                    $url->priority((float) $route->defaults['sitemap_priority']);
+                $combinations = [[]];
+                foreach ($defaults->parameters as $key => $values) {
+                    $combinations = collect($combinations)->flatMap(function ($combo) use ($key, $values) {
+                        return collect($values)->map(fn ($val) => array_merge($combo, [$key => $val]));
+                    })->all();
                 }
 
-                if (isset($route->defaults['sitemap_changefreq'])) {
-                    $url->changefreq(ChangeFrequency::from($route->defaults['sitemap_changefreq']));
-                }
+                $combinations = count($combinations) ? $combinations : [[]];
 
-                return $url;
+                return collect($combinations)->map(function ($params) use ($uri, $defaults) {
+                    $filledUri = $uri;
+                    foreach ($params as $key => $value) {
+                        $replacement = is_object($value) && method_exists($value, 'getRouteKey')
+                            ? $value->getRouteKey()
+                            : (string) $value;
+
+                        $filledUri = str_replace("{{$key}}", $replacement, $filledUri);
+                    }
+
+                    $url = Url::make(url($filledUri));
+
+                    if ($defaults->priority !== null) {
+                        $url->priority($defaults->priority);
+                    }
+
+                    if ($defaults->changefreq !== null) {
+                        $url->changefreq($defaults->changefreq);
+                    }
+
+                    return $url;
+                });
             })
             ->values();
     }
