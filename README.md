@@ -1,4 +1,4 @@
-![Static Badge](https://img.shields.io/badge/Version-1.1-blue)
+![Static Badge](https://img.shields.io/badge/Version-1.2.2-blue)
 ![Static Badge](https://img.shields.io/badge/Laravel-12.*-blue)
 ![Static Badge](https://img.shields.io/badge/PHP->_8.3-blue)
 
