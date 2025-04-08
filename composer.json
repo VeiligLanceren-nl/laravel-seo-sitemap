@@ -25,7 +25,10 @@
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests/"
-        }
+        },
+        "files": [
+            "src/Support/Helpers/sitemap.php"
+        ]
     },
     "authors": [
         {
@@ -35,6 +38,13 @@
     "config": {
         "allow-plugins": {
             "pestphp/pest-plugin": true
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "VeiligLanceren\\LaravelSeoSitemap\\SitemapServiceProvider"
+            ]
         }
     }
 }
