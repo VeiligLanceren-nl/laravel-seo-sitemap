@@ -169,6 +169,18 @@ php artisan url:update contact
 
 This updates the `lastmod` timestamp for the route `contact` using the current time.
 
+## Sitemap meta helper
+
+Add the Sitemap URL to your meta data with the helper provided by the package. By default it will use the default `/sitemap.xml` URL.
+
+```php
+<head>
+    <title>Your title</title>
+    {{ sitemap_meta_tag($customUrl = null) }}
+</head>
+```
+
+
 ---
 
 ## ✅ Testing
