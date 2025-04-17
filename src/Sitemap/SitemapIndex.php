@@ -4,6 +4,7 @@ namespace VeiligLanceren\LaravelSeoSitemap\Sitemap;
 
 use Exception;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 use SimpleXMLElement;
 
 class SitemapIndex
@@ -30,6 +31,41 @@ class SitemapIndex
         $instance->options = $options;
 
         return $instance;
+    }
+
+    /**
+     * @param string $path
+     * @param string $disk
+     * @return array
+     */
+    public static function load(string $path = 'sitemaps/index.xml', string $disk = 'public'): array
+    {
+        if (! Storage::disk($disk)->exists($path)) {
+            return [];
+        }
+
+        $content = Storage::disk($disk)->get($path);
+
+        return self::parseXml($content);
+    }
+
+    /**
+     * @param string $xmlContent
+     * @return array
+     * @throws Exception
+     */
+    protected static function parseXml(string $xmlContent): array
+    {
+        $xml = new SimpleXMLElement($xmlContent);
+        $sitemaps = [];
+
+        foreach ($xml->sitemap as $sitemapElement) {
+            $loc = (string) $sitemapElement->loc;
+            $parsedPath = parse_url($loc, PHP_URL_PATH);
+            $sitemaps[] = Sitemap::load(ltrim($parsedPath, '/'), 'public');
+        }
+
+        return $sitemaps;
     }
 
     /**

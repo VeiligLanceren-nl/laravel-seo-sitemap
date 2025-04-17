@@ -2,7 +2,9 @@
 
 namespace VeiligLanceren\LaravelSeoSitemap\Sitemap\Item;
 
+use SimpleXMLElement;
 use VeiligLanceren\LaravelSeoSitemap\Sitemap\SitemapItem;
+use VeiligLanceren\LaravelSeoSitemap\Popo\Sitemap\Item\ImageAttributes;
 
 class Image extends SitemapItem
 {
@@ -32,12 +34,41 @@ class Image extends SitemapItem
     protected ?string $geo_location = null;
 
     /**
-     * @param string $loc
+     * @param SimpleXMLElement $element
      * @return static
      */
-    public static function make(string $loc): static
+    public static function fromXml(SimpleXMLElement $element): static
     {
-        return (new static())->loc($loc);
+        $image = $element->children('http://www.google.com/schemas/sitemap-image/1.1')->image;
+
+        $item = new static();
+        $item->loc = (string) $image->loc;
+        $item->caption = isset($image->caption) ? (string) $image->caption : null;
+        $item->title = isset($image->title) ? (string) $image->title : null;
+        $item->license = isset($image->license) ? (string) $image->license : null;
+
+        return $item;
+    }
+
+    /**
+     * @param string $loc
+     * @param ImageAttributes|array|null $attributes
+     * @return static
+     */
+    public static function make(string $loc, ImageAttributes|array|null $attributes = null): static
+    {
+        $attributes = is_array($attributes)
+            ? ImageAttributes::fromArray($attributes)
+            : $attributes;
+
+        $instance = new static();
+        $instance->loc = $loc;
+        $instance->caption = $attributes?->caption;
+        $instance->title = $attributes?->title;
+        $instance->license = $attributes?->license;
+        $instance->geo_location = $attributes?->geo_location;
+
+        return $instance;
     }
 
     /**

@@ -3,6 +3,8 @@
 namespace VeiligLanceren\LaravelSeoSitemap\Sitemap\Item;
 
 use DateTimeInterface;
+use SimpleXMLElement;
+use VeiligLanceren\LaravelSeoSitemap\Popo\Sitemap\Item\UrlAttributes;
 use VeiligLanceren\LaravelSeoSitemap\Sitemap\SitemapItem;
 use VeiligLanceren\LaravelSeoSitemap\Support\Enums\ChangeFrequency;
 
@@ -11,56 +13,122 @@ class Url extends SitemapItem
     /**
      * @var string
      */
-    protected string $loc;
+    public string $loc;
 
     /**
      * @var string|null
      */
-    protected ?string $lastmod = null;
+    public ?string $lastmod = null;
 
     /**
      * @var string|null
      */
-    protected ?string $priority = null;
+    public ?string $priority = null;
 
     /**
-     * @var string|null
+     * @var ChangeFrequency|null
      */
-    protected ?string $changefreq = null;
+    public ?ChangeFrequency $changefreq = null;
 
     /**
      * @var Image[]
      */
-    protected array $images = [];
+    public array $images = [];
 
     /**
-     * @param string $loc
+     * @var array<string, mixed>
+     */
+    public array $meta = [];
+
+    /**
+     * @param SimpleXMLElement $xml
+     * @return static
+     */
+    public static function fromXml(SimpleXMLElement $xml): Url
+    {
+        $attributes = new UrlAttributes(
+            loc: (string) $xml->loc,
+            lastmod: (string) $xml->lastmod,
+            changefreq: isset($xml->changefreq)
+                ? ChangeFrequency::tryFrom((string) $xml->changefreq)
+                : null,
+            priority: isset($xml->priority)
+                ? (float) $xml->priority
+                : null,
+        );
+
+        $url = Url::make($attributes);
+
+        if (isset($xml->meta)) {
+            $meta = [];
+
+            foreach ($xml->meta->children() as $key => $value) {
+                $meta[$key] = (string) $value;
+            }
+
+            $url->meta = $meta;
+        }
+
+        return $url;
+    }
+
+    /**
+     * @param string|UrlAttributes $loc
      * @param string|DateTimeInterface|null $lastmod
      * @param string|null $priority
-     * @param ChangeFrequency|null $changeFrequency
+     * @param ChangeFrequency|string|null $changeFrequency
+     * @param UrlAttributes|array|null $attributes
      * @return static
      */
     public static function make(
-        string $loc,
+        string|UrlAttributes $loc,
         string|DateTimeInterface $lastmod = null,
         string $priority = null,
-        ChangeFrequency $changeFrequency = null,
+        ChangeFrequency|string $changeFrequency = null,
+        UrlAttributes|array|null $attributes = null,
     ): static {
-        $sitemap = (new static())->loc($loc);
+        if ($loc instanceof UrlAttributes) {
+            $attributes = $loc;
+            $loc = $attributes->loc;
+        }
+
+        $attributes = is_array($attributes)
+            ? UrlAttributes::fromArray($attributes)
+            : $attributes;
+
+        $instance = (new static())->loc($loc);
 
         if ($lastmod) {
-            $sitemap->lastmod($lastmod);
+            $instance->lastmod($lastmod);
+        } elseif ($attributes?->lastmod) {
+            $instance->lastmod($attributes->lastmod);
         }
 
         if ($priority) {
-            $sitemap->priority($priority);
+            $instance->priority($priority);
+        } elseif ($attributes?->priority !== null) {
+            $instance->priority((string) $attributes->priority);
         }
 
         if ($changeFrequency) {
-            $sitemap->changefreq($changeFrequency);
+            if (is_string($changeFrequency)) {
+                $instance->changefreq(ChangeFrequency::from($changeFrequency));
+            } else {
+                $instance->changefreq($changeFrequency);
+            }
+        } elseif ($attributes?->changefreq) {
+            if (is_string($changeFrequency)) {
+                $instance->changefreq(ChangeFrequency::from($attributes->changefreq));
+            } else {
+                $instance->changefreq($attributes->changefreq);
+            }
         }
 
-        return $sitemap;
+        if ($attributes?->meta) {
+            $instance->meta = $attributes->meta;
+        }
+
+        return $instance;
     }
 
     /**
@@ -104,7 +172,7 @@ class Url extends SitemapItem
      */
     public function changefreq(ChangeFrequency $changefreq): static
     {
-        $this->changefreq = $changefreq->value;
+        $this->changefreq = $changefreq;
 
         return $this;
     }
@@ -145,7 +213,7 @@ class Url extends SitemapItem
     public function toArray(): array
     {
         $data = array_filter([
-            'loc' => $this->loc,
+            'loc' => url($this->loc),
             'lastmod' => $this->lastmod,
             'priority' => $this->priority,
             'changefreq' => $this->changefreq,
