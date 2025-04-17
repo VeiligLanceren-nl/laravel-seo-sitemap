@@ -164,10 +164,10 @@ The package is providing an enum with the possible change frequencies as documen
 ## 🛠 Update `lastmod` via Artisan
 
 ```bash
-php artisan url:update contact
+php artisan sitemap:update {route} --no-ping
 ```
 
-This updates the `lastmod` timestamp for the route `contact` using the current time.
+This updates the `lastmod` timestamp for the route `contact` using the current time. `--no-ping` stops pinging the new Sitemap version to the registered search engines.
 
 ## Sitemap meta helper
 
