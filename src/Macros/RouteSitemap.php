@@ -76,9 +76,9 @@ class RouteSitemap
                         $combinations = [[]];
                     }
 
-                    $urls = collect($combinations)->map(fn ($params) =>
-                    static::buildUrlFromParams($uri, $params, $defaults)
-                    );
+                    $urls = collect($combinations)
+                        ->map(fn ($params) => static::buildUrlFromParams($uri, $params, $defaults))
+                        ->filter(fn (Url $url) => ! str_contains($url->toArray()['loc'], '{'));
                 }
 
                 // Handle dynamic() macro
