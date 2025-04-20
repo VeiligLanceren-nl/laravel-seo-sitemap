@@ -86,7 +86,23 @@ class RouteSitemap
                     $callback = $route->defaults['sitemap.dynamic'];
                     $result = $callback();
 
-                    $urlGenerator = fn (array $params) => Url::make(route($route->getName(), $params));
+                    $urlGenerator = function (array $params) use ($route): Url {
+                        $defaults = $route->defaults['sitemap'] ?? null;
+
+                        $url = Url::make(route($route->getName(), $params));
+
+                        if ($defaults instanceof RouteSitemapDefaults) {
+                            if ($defaults->priority !== null) {
+                                $url->priority($defaults->priority);
+                            }
+
+                            if ($defaults->changefreq !== null) {
+                                $url->changefreq($defaults->changefreq);
+                            }
+                        }
+
+                        return $url;
+                    };
 
                     if ($result instanceof DynamicRoute) {
                         return $urls->merge(
