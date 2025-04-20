@@ -41,6 +41,12 @@ return [
 ];
 ```
 
+Walk through connecting to Google and IndexNow (by Microsoft's Bing)
+
+```bash
+php artisan sitemap:install
+```
+
 Publish the `config/sitemap.php` config file:
 
 ```bash

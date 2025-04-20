@@ -5,7 +5,7 @@ namespace VeiligLanceren\LaravelSeoSitemap\Console\Commands;
 use Illuminate\Console\Command;
 use VeiligLanceren\LaravelSeoSitemap\Sitemap\Sitemap;
 
-class GenerateSitemap extends Command
+class GenerateSitemapCommand extends Command
 {
     /**
      * @var string

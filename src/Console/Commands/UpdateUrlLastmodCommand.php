@@ -9,7 +9,7 @@ use VeiligLanceren\LaravelSeoSitemap\Models\UrlMetadata;
 use VeiligLanceren\LaravelSeoSitemap\Sitemap\SitemapItem;
 use VeiligLanceren\LaravelSeoSitemap\Interfaces\Services\SearchEnginePingServiceInterface;
 
-class UpdateUrlLastmod extends Command
+class UpdateUrlLastmodCommand extends Command
 {
     /**
      * @var string

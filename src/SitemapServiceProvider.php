@@ -7,11 +7,11 @@ use Illuminate\Support\ServiceProvider;
 use VeiligLanceren\LaravelSeoSitemap\Macros\RouteSitemap;
 use VeiligLanceren\LaravelSeoSitemap\Macros\RoutePriority;
 use VeiligLanceren\LaravelSeoSitemap\Macros\RouteChangefreq;
-use VeiligLanceren\LaravelSeoSitemap\Services\Ping\BingPingService;
+use VeiligLanceren\LaravelSeoSitemap\Services\Ping\IndexNowPingService;
 use VeiligLanceren\LaravelSeoSitemap\Services\Ping\GooglePingService;
 use VeiligLanceren\LaravelSeoSitemap\Services\SearchEnginePingService;
-use VeiligLanceren\LaravelSeoSitemap\Console\Commands\GenerateSitemap;
-use VeiligLanceren\LaravelSeoSitemap\Console\Commands\UpdateUrlLastmod;
+use VeiligLanceren\LaravelSeoSitemap\Console\Commands\GenerateSitemapCommand;
+use VeiligLanceren\LaravelSeoSitemap\Console\Commands\UpdateUrlLastmodCommand;
 use VeiligLanceren\LaravelSeoSitemap\Interfaces\Services\SearchEnginePingServiceInterface;
 
 class SitemapServiceProvider extends ServiceProvider
@@ -20,7 +20,7 @@ class SitemapServiceProvider extends ServiceProvider
      * @var array
      */
     protected array $pingServices = [
-        BingPingService::class,
+        IndexNowPingService::class,
         GooglePingService::class,
     ];
 
@@ -32,8 +32,8 @@ class SitemapServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__ . '/../config/sitemap.php', 'sitemap');
 
         $this->commands([
-            GenerateSitemap::class,
-            UpdateUrlLastmod::class,
+            GenerateSitemapCommand::class,
+            UpdateUrlLastmodCommand::class,
         ]);
     }
 
