@@ -6,6 +6,7 @@ use SimpleXMLElement;
 use Illuminate\Support\Collection;
 use VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Image;
 use VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Url;
+use VeiligLanceren\LaravelSeoSitemap\Support\Enums\ChangeFrequency;
 
 class XmlBuilder
 {
@@ -32,6 +33,10 @@ class XmlBuilder
                             }
                         }
                     } else {
+                        if ($value instanceof ChangeFrequency) {
+                            $value = $value->value;
+                        }
+
                         $urlElement->addChild($key, htmlspecialchars($value));
                     }
                 }

@@ -2,21 +2,21 @@
 
 namespace VeiligLanceren\LaravelSeoSitemap\Sitemap;
 
+use Countable;
 use Traversable;
 use ArrayIterator;
+use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
-use VeiligLanceren\LaravelSeoSitemap\Exceptions\SitemapTooLargeException;
+use VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Url;
+use VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Image;
 use VeiligLanceren\LaravelSeoSitemap\Macros\RouteSitemap;
+use VeiligLanceren\LaravelSeoSitemap\Exceptions\SitemapTooLargeException;
 use VeiligLanceren\LaravelSeoSitemap\Interfaces\SitemapProviderInterface;
 
 class Sitemap
 {
-    /**
-     * @var Collection
-     */
-    protected Collection $items;
-
     /**
      * @var array
      */
@@ -40,10 +40,10 @@ class Sitemap
     /**
      * Sitemap constructor.
      */
-    public function __construct()
-    {
-        $this->items = collect();
-    }
+    public function __construct(
+        public ?array     $items = [],
+        public ?string $path = null,
+    ) {}
 
     /**
      * Create sitemap from routes.
@@ -52,9 +52,7 @@ class Sitemap
      */
     public static function fromRoutes(): self
     {
-        $sitemap = new static();
-
-        $sitemap->items = RouteSitemap::urls();
+        $sitemap = new static(RouteSitemap::urls()->toArray());
 
         return $sitemap;
     }
@@ -92,6 +90,83 @@ class Sitemap
     }
 
     /**
+     * @param string $disk
+     * @param string $path
+     * @return self|null
+     */
+    public static function fromStorage(string $disk, string $path): ?self
+    {
+        $content = Storage::disk($disk)->get($path);
+        $content = ltrim($content); // defensive
+
+        try {
+            libxml_use_internal_errors(true);
+            $xml = simplexml_load_string($content);
+            if (! $xml) {
+                return null;
+            }
+        } catch (\Throwable $e) {
+            return null;
+        }
+
+        $items = collect($xml->url)->map(function ($url) {
+            if (isset($url->image)) {
+                return Image::fromXml($url);
+            }
+
+            return Url::fromXml($url);
+        });
+
+        return new self(items: $items->all(), path: $path);
+    }
+
+
+
+
+    /**
+     * Load all sitemap XML files and return a collection of Sitemap objects.
+     *
+     * @return Collection<Sitemap>
+     */
+    public static function load(): Collection
+    {
+        $disk = config('sitemap.disk', 'public');
+        $directory = config('sitemap.directory', 'sitemaps');
+
+        $files = Storage::disk($disk)->files($directory);
+
+        return collect($files)
+            ->filter(fn ($file) => Str::endsWith($file, '.xml'))
+            ->map(fn ($path) => self::fromStorage($disk, $path))
+            ->filter();
+    }
+
+    /**
+     * Load sitemap from an XML file.
+     *
+     * @param string $path
+     * @return static|null
+     */
+    public static function fromFile(string $path): ?self
+    {
+        $xml = simplexml_load_file($path);
+
+        if (! $xml) {
+            return null;
+        }
+
+        $items = collect($xml->url)->map(function ($url) {
+            if (isset($url->image)) {
+                return Image::fromXml($url);
+            }
+
+            return Url::fromXml($url);
+        });
+
+        return new self(items: $items, path: $path);
+    }
+
+    /**
      * Merge another sitemap into this one.
      *
      * @param Sitemap $other
@@ -115,7 +190,7 @@ class Sitemap
     {
         $instance = new static();
 
-        $instance->items = collect($items);
+        $instance->items = $items;
         $instance->options = $options;
 
         return $instance;
@@ -130,7 +205,7 @@ class Sitemap
      */
     public function items(Collection $items): static
     {
-        $this->items = collect();
+        $this->items = [];
         $this->addMany($items);
 
         return $this;
@@ -178,15 +253,15 @@ class Sitemap
     public function add(SitemapItem $item): void
     {
         $this->guardMaxItems(1);
-        $this->items->push($item);
+        $this->items[] = $item;
     }
 
     /**
-     * @param iterable $items
+     * @param Countable $items
      * @return void
      * @throws SitemapTooLargeException
      */
-    public function addMany(iterable $items): void
+    public function addMany(Countable $items): void
     {
         $count = is_countable($items)
             ? count($items)
@@ -213,7 +288,7 @@ class Sitemap
             return;
         }
 
-        if ($this->items->count() + $adding > $this->maxItems) {
+        if (count($this->items) + $adding > $this->maxItems) {
             throw new SitemapTooLargeException($this->maxItems);
         }
     }
@@ -227,7 +302,7 @@ class Sitemap
      */
     public function save(string $path, string $disk): void
     {
-        $xml = XmlBuilder::build($this->items, $this->options);
+        $xml = XmlBuilder::build(Collection::make($this->items), $this->options);
 
         Storage::disk($disk)->put($path, $xml);
     }
@@ -239,7 +314,7 @@ class Sitemap
      */
     public function toXml(): string
     {
-        return XmlBuilder::build($this->items, $this->options);
+        return XmlBuilder::build(collect($this->items), $this->options);
     }
 
     /**
@@ -251,7 +326,7 @@ class Sitemap
     {
         return [
             'options' => $this->options,
-            'items' => $this->items->map(fn (SitemapItem $item) => $item->toArray())->all(),
+            'items' => collect($this->items)->map(fn (SitemapItem $item) => $item->toArray())->all(),
         ];
     }
 }
