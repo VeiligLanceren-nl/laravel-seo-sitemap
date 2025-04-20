@@ -1,20 +1,18 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Collection;
-use VeiligLanceren\Sitemap\Dynamic\DynamicRouteChild;
-use VeiligLanceren\Sitemap\Dynamic\StaticDynamicRoute;
-use function Pest\Laravel\get;
+use VeiligLanceren\LaravelSeoSitemap\Sitemap\DynamicRouteChild;
+use VeiligLanceren\LaravelSeoSitemap\Sitemap\StaticDynamicRoute;
 
 beforeEach(function () {
-    Route::get('/test/{slug}', fn () => 'ok')
+    test()->testDynamicRoute = Route::get('/test/{slug}', fn () => 'ok')
         ->name('test.dynamic')
         ->dynamic(fn () => new StaticDynamicRoute([
             DynamicRouteChild::make(['slug' => 'one']),
             DynamicRouteChild::make(['slug' => 'two']),
         ]));
 
-    Route::get('/fallback/{slug}', fn () => 'ok')
+    test()->testFallbackRoute = Route::get('/fallback/{slug}', fn () => 'ok')
         ->name('test.fallback')
         ->dynamic(fn () => [
             ['slug' => 'a'],
@@ -23,15 +21,16 @@ beforeEach(function () {
 });
 
 it('registers dynamic macro and stores closure under defaults', function () {
-    $route = Route::getRoutes()->getByName('test.dynamic');
+    $route = test()->testDynamicRoute;
 
-    expect($route->defaults)
+    expect($route)->not->toBeNull()
+        ->and($route->defaults)
         ->toHaveKey('sitemap.dynamic')
         ->and($route->defaults['sitemap.dynamic'])->toBeInstanceOf(Closure::class);
 });
 
 it('returns correct parameters from StaticDynamicRoute', function () {
-    $route = Route::getRoutes()->getByName('test.dynamic');
+    $route = test()->testDynamicRoute;
     $provider = $route->defaults['sitemap.dynamic'];
     $result = $provider();
 
@@ -41,7 +40,7 @@ it('returns correct parameters from StaticDynamicRoute', function () {
 });
 
 it('supports raw array return and generates parameter sets', function () {
-    $route = Route::getRoutes()->getByName('test.fallback');
+    $route = test()->testFallbackRoute;
     $provider = $route->defaults['sitemap.dynamic'];
     $result = $provider();
 
