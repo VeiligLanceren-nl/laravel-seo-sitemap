@@ -62,3 +62,4 @@ it('includes model parameters in sitemap', function () {
         expect($items[$index]['priority'])->toBe('0.6');
     }
 });
+

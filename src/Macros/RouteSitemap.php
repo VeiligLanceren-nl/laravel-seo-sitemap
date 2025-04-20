@@ -5,6 +5,7 @@ namespace VeiligLanceren\LaravelSeoSitemap\Macros;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Routing\Route as RoutingRoute;
+use VeiligLanceren\LaravelSeoSitemap\Sitemap\DynamicRoute;
 use VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Url;
 use VeiligLanceren\LaravelSeoSitemap\Popo\RouteSitemapDefaults;
 
@@ -32,7 +33,8 @@ class RouteSitemap
     }
 
     /**
-     * Get all GET routes that are explicitly marked for the sitemap.
+     * Get all GET routes that are explicitly marked for the sitemap
+     * either through ->sitemap() or ->dynamic().
      *
      * @return Collection<Url>
      */
@@ -40,51 +42,96 @@ class RouteSitemap
     {
         return collect(Route::getRoutes())
             ->filter(function (RoutingRoute $route) {
-                return in_array('GET', $route->methods())
-                    && ($route->defaults['sitemap'] ?? false);
-            })
-            ->filter(function (RoutingRoute $route) {
-                return in_array('GET', $route->methods())
-                    && ($route->defaults['sitemap'] ?? null) instanceof RouteSitemapDefaults
-                    && $route->defaults['sitemap']->enabled;
+                return in_array('GET', $route->methods());
             })
             ->flatMap(function (RoutingRoute $route) {
-                /** @var RouteSitemapDefaults $defaults */
-                $defaults = $route->defaults['sitemap'];
-                $uri = $route->uri();
+                $urls = collect();
 
-                $combinations = [[]];
-                foreach ($defaults->parameters as $key => $values) {
-                    $combinations = collect($combinations)->flatMap(function ($combo) use ($key, $values) {
-                        return collect($values)->map(fn ($val) => array_merge($combo, [$key => $val]));
-                    })->all();
+                // Handle sitemap() via RouteSitemapDefaults
+                if (
+                    ($route->defaults['sitemap'] ?? null) instanceof RouteSitemapDefaults &&
+                    $route->defaults['sitemap']->enabled
+                ) {
+                    /** @var RouteSitemapDefaults $defaults */
+                    $defaults = $route->defaults['sitemap'];
+                    $uri = $route->uri();
+
+                    // Dynamic closure-based parameters
+                    if (is_callable($defaults->parameters)) {
+                        $parameterSets = call_user_func($defaults->parameters);
+                        return collect($parameterSets)->map(fn ($params) =>
+                        static::buildUrlFromParams($uri, $params, $defaults)
+                        );
+                    }
+
+                    // Static parameter expansion
+                    $combinations = [[]];
+                    foreach ($defaults->parameters as $key => $values) {
+                        $combinations = collect($combinations)->flatMap(function ($combo) use ($key, $values) {
+                            return collect($values)->map(fn ($val) => array_merge($combo, [$key => $val]));
+                        })->all();
+                    }
+
+                    if (empty($combinations)) {
+                        $combinations = [[]];
+                    }
+
+                    $urls = collect($combinations)->map(fn ($params) =>
+                    static::buildUrlFromParams($uri, $params, $defaults)
+                    );
                 }
 
-                $combinations = count($combinations) ? $combinations : [[]];
+                // Handle dynamic() macro
+                if (isset($route->defaults['sitemap.dynamic']) && is_callable($route->defaults['sitemap.dynamic'])) {
+                    $callback = $route->defaults['sitemap.dynamic'];
+                    $result = $callback();
 
-                return collect($combinations)->map(function ($params) use ($uri, $defaults) {
-                    $filledUri = $uri;
-                    foreach ($params as $key => $value) {
-                        $replacement = is_object($value) && method_exists($value, 'getRouteKey')
-                            ? $value->getRouteKey()
-                            : (string) $value;
+                    $urlGenerator = fn (array $params) => Url::make(route($route->getName(), $params));
 
-                        $filledUri = str_replace("{{$key}}", $replacement, $filledUri);
+                    if ($result instanceof DynamicRoute) {
+                        return $urls->merge(
+                            $result->parameters()->map($urlGenerator)
+                        );
                     }
 
-                    $url = Url::make(url($filledUri));
+                    return $urls->merge(
+                        collect($result)->map($urlGenerator)
+                    );
+                }
 
-                    if ($defaults->priority !== null) {
-                        $url->priority($defaults->priority);
-                    }
-
-                    if ($defaults->changefreq !== null) {
-                        $url->changefreq($defaults->changefreq);
-                    }
-
-                    return $url;
-                });
+                return $urls;
             })
             ->values();
     }
+
+    /**
+     * @param string $uri
+     * @param array<string, mixed> $params
+     * @param RouteSitemapDefaults $defaults
+     * @return Url
+     */
+    protected static function buildUrlFromParams(string $uri, array $params, RouteSitemapDefaults $defaults): Url
+    {
+        foreach ($params as $key => $value) {
+            $replacement = is_object($value) && method_exists($value, 'getRouteKey')
+                ? $value->getRouteKey()
+                : (string) $value;
+
+            $uri = str_replace("{{$key}}", $replacement, $uri);
+        }
+
+        $url = Url::make(url($uri));
+
+        if ($defaults->priority !== null) {
+            $url->priority($defaults->priority);
+        }
+
+        if ($defaults->changefreq !== null) {
+            $url->changefreq($defaults->changefreq);
+        }
+
+        return $url;
+    }
+
+
 }

@@ -4,21 +4,24 @@
 
 ![Veilig Lanceren](/veilig-lanceren-logo.png)
 
-This package is maintained by VeiligLanceren.nl, your partner in website development and everything else to power up your online company. More information available on [our website](https://veiliglanceren.nl).
+This package is maintained by [VeiligLanceren.nl](https://veiliglanceren.nl), your partner in website development and everything else to power up your online company.
 
 # Laravel SEO Sitemap
 
-A lightweight and extensible sitemap generator for Laravel that supports automatic route discovery, custom URL entries, and XML generation — designed for SEO optimization.
+A lightweight and extensible sitemap generator for Laravel that supports automatic route discovery, dynamic and static URL entries, and XML generation — designed for SEO optimization.
+
+---
 
 ## 🚀 Features
 
-- Generate sitemaps from named Laravel routes using a macro: `->sitemap()`
-- Customize URLs with `lastmod`, `priority`, `changefreq`
-- Clean XML output with optional pretty-printing
-- Store sitemaps to disk
-- Artisan command to update `lastmod` for routes
-- Fully tested with Pest and Laravel Testbench
-- Default `/sitemap.xml` route that serves the configured sitemap location
+- 🔍 Automatic sitemap generation from named routes via `->sitemap()` macro
+- 📦 Dynamic route support via `->dynamic()` macro
+- ✏️ Customize entries with `lastmod`, `priority`, `changefreq`
+- 🧼 Clean and compliant XML output
+- 💾 Store sitemaps to disk or serve via route
+- 🛠 Artisan command for `lastmod` updates
+- ✅ Fully tested using Pest and Laravel Testbench
+- 🌐 Default `/sitemap.xml` route included
 
 ---
 
@@ -32,7 +35,7 @@ composer require veiliglanceren/laravel-seo-sitemap
 
 ## ⚙️ Configuration
 
-If used outside Laravel auto-discovery, register the service provider:
+If you're not using Laravel package auto-discovery, register the provider manually:
 
 ```php
 // bootstrap/providers.php
@@ -41,13 +44,13 @@ return [
 ];
 ```
 
-Publish the `config/sitemap.php` config file:
+Then publish the config file:
 
 ```bash
 php artisan vendor:publish --tag=sitemap-config
 ```
 
-Publish the migration (if using `lastmod` tracking):
+And optionally publish & run the migration:
 
 ```bash
 php artisan vendor:publish --tag=sitemap-migration
@@ -58,67 +61,48 @@ php artisan migrate
 
 ## 🧭 Usage
 
-- 📄 [Full Sitemap class documentation](docs/sitemap.md)
-- 📄 [Url class documentation](docs/url.md)
-- 📄 [Url image documentation](docs/image.md)
-- 📄 [Sitemap Index documentation](docs/sitemapindex.md)
-
-### Basic usage
+### 📄 Static Route Example
 
 ```php
 use VeiligLanceren\LaravelSeoSitemap\Support\Enums\ChangeFrequency;
 
 Route::get('/contact', [ContactController::class, 'index'])
-    ->name('contact')                         // 🔖 Sets the route name
-    ->sitemap()                               // ✅ Include in sitemap
-    ->changefreq(ChangeFrequency::WEEKLY)     // ♻️  Update frequency: weekly
-    ->priority('0.8');                        // ⭐ Priority for search engines
+    ->name('contact')
+    ->sitemap()
+    ->changefreq(ChangeFrequency::WEEKLY)
+    ->priority('0.8');
 ```
+
+### 🔄 Dynamic Route Example
+
+```php
+use VeiligLanceren\Sitemap\Dynamic\StaticDynamicRoute;
+use VeiligLanceren\Sitemap\Dynamic\DynamicRouteChild;
+
+Route::get('/blog/{slug}', BlogController::class)
+    ->name('blog.show')
+    ->dynamic(fn () => new StaticDynamicRoute([
+        DynamicRouteChild::make(['slug' => 'first-post']),
+        DynamicRouteChild::make(['slug' => 'second-post']),
+    ]));
+```
+
+### Generate Sitemap from Routes
+
+```bash
+php artisan sitemap:generate
+```
+
+Or via code:
 
 ```php
 $sitemap = Sitemap::fromRoutes();
 $sitemap->save('sitemap.xml', 'public');
 ```
 
-### Static usage
-
-```php
-use VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Url;
-use VeiligLanceren\LaravelSeoSitemap\Support\Enums\ChangeFrequency;
-
-$url = Url::make('https://example.com')
-    ->lastmod('2025-01-01')
-    ->priority('0.8')
-    ->changefreq(ChangeFrequency::WEEKLY);
-
-$sitemap = Sitemap::make([$url]);
-$sitemap->save('sitemap.xml', 'public');
-```
-
 ---
 
-### Sitemap index usage
-
-```php
-use VeiligLanceren\LaravelSeoSitemap\Sitemap\SitemapIndex;
-
-$sitemapIndex = SitemapIndex::make([
-    'https://example.com/sitemap-posts.xml',
-    'https://example.com/sitemap-pages.xml',
-]);
-
-$sitemapIndex->toXml();
-```
-
-To save:
-
-```php
-Storage::disk('public')->put('sitemap.xml', $sitemapIndex->toXml());
-```
-
-### 🖼 Adding Images to URLs
-
-You can attach one or more `<image:image>` elements to a `Url` entry:
+## 🖼 Add Images to URLs
 
 ```php
 use VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Url;
@@ -129,82 +113,96 @@ $url = Url::make('https://example.com')
     ->addImage(Image::make('https://example.com/image2.jpg')->title('Hero 2'));
 ```
 
-These images will be embedded under the `<url>` node in the generated XML:
+---
 
-```xml
-<url>
-  <loc>https://example.com</loc>
-  <image:image>
-    <image:loc>https://example.com/image1.jpg</image:loc>
-    <image:title>Hero 1</image:title>
-  </image:image>
-  <image:image>
-    <image:loc>https://example.com/image2.jpg</image:loc>
-    <image:title>Hero 2</image:title>
-  </image:image>
-</url>
+## 🗂 Sitemap Index Support
+
+```php
+use VeiligLanceren\LaravelSeoSitemap\Sitemap\SitemapIndex;
+
+$sitemapIndex = SitemapIndex::make([
+    'https://example.com/sitemap-posts.xml',
+    'https://example.com/sitemap-pages.xml',
+]);
+
+Storage::disk('public')->put('sitemap.xml', $sitemapIndex->toXml());
 ```
 
-Each `Image` supports optional fields: `caption`, `title`, `license`, and `geo_location`.
+---
 
-## Change frequencies
+## 🔁 Change Frequencies
 
-The package is providing an enum with the possible change frequencies as documented on [sitemaps.org](https://www.sitemaps.org/protocol.html#changefreqdef).
+Use `ChangeFrequency` enum values:
+- `ALWAYS`
+- `HOURLY`
+- `DAILY`
+- `WEEKLY`
+- `MONTHLY`
+- `YEARLY`
+- `NEVER`
 
-### Available frequencies
-- `ChangeFrequency::ALWAYS`
-- `ChangeFrequency::HOURLY`
-- `ChangeFrequency::DAILY`
-- `ChangeFrequency::WEEKLY`
-- `ChangeFrequency::MONTHLY`
-- `ChangeFrequency::YEARLY`
-- `ChangeFrequency::NEVER`
+```php
+->changefreq(ChangeFrequency::WEEKLY)
+```
 
+---
 
-## 🛠 Update `lastmod` via Artisan
+## 🛠 Update lastmod
 
 ```bash
 php artisan url:update contact
 ```
 
-This updates the `lastmod` timestamp for the route `contact` using the current time.
-
-## Sitemap meta helper
-
-Add the Sitemap URL to your meta data with the helper provided by the package. By default it will use the default `/sitemap.xml` URL.
-
-```php
-<head>
-    <title>Your title</title>
-    {{ sitemap_meta_tag($customUrl = null) }}
-</head>
-```
-
+This sets the `lastmod` for the route to the current timestamp.
 
 ---
 
-## ✅ Testing
+## 🔗 Meta Tag Helper
 
-Run tests using Pest:
+```blade
+<head>
+    {{ sitemap_meta_tag() }}
+</head>
+```
+
+Outputs:
+
+```html
+<link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
+```
+
+---
+
+## 🧪 Testing
 
 ```bash
 vendor/bin/pest
 ```
 
-Make sure you have SQLite enabled for in-memory testing.
+SQLite must be enabled for in-memory testing.
+
+---
+
+## 📚 Documentation
+
+- [`docs/sitemap.md`](docs/sitemap.md)
+- [`docs/url.md`](docs/url.md)
+- [`docs/image.md`](docs/image.md)
+- [`docs/sitemapindex.md`](docs/sitemapindex.md)
+- [`docs/dynamic-routes.md`](docs/dynamic-routes.md)
 
 ---
 
 ## 📂 Folder Structure
 
-- `src/` - Core sitemap logic
-- `tests/` - Pest feature & unit tests
-- `database/migrations/` - `url_metadata` tracking support
-- `routes/` - Uses Laravel route inspection
-- `docs/` - Extended documentation
+- `src/` – Core sitemap logic
+- `tests/` – Pest feature & unit tests
+- `docs/` – Documentation
+- `routes/` – Laravel route macros
+- `database/` – Optional migrations
 
 ---
 
 ## 📄 License
 
-MIT © Veilig Lanceren
+MIT © [VeiligLanceren.nl](https://veiliglanceren.nl)
