@@ -20,15 +20,15 @@
     "autoload": {
         "psr-4": {
             "VeiligLanceren\\LaravelSeoSitemap\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Tests\\": "tests/"
         },
         "files": [
             "src/Support/Helpers/sitemap.php"
         ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
     },
     "authors": [
         {
