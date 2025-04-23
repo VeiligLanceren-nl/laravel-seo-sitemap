@@ -3,10 +3,12 @@
 namespace VeiligLanceren\LaravelSeoSitemap;
 
 use Illuminate\Support\ServiceProvider;
+use VeiligLanceren\LaravelSeoSitemap\Sitemap\Sitemap;
 use VeiligLanceren\LaravelSeoSitemap\Macros\RouteDynamic;
 use VeiligLanceren\LaravelSeoSitemap\Macros\RouteSitemap;
 use VeiligLanceren\LaravelSeoSitemap\Macros\RoutePriority;
 use VeiligLanceren\LaravelSeoSitemap\Macros\RouteChangefreq;
+use VeiligLanceren\LaravelSeoSitemap\Services\SitemapService;
 use VeiligLanceren\LaravelSeoSitemap\Console\Commands\GenerateSitemap;
 use VeiligLanceren\LaravelSeoSitemap\Console\Commands\UpdateUrlLastmod;
 
@@ -23,6 +25,10 @@ class SitemapServiceProvider extends ServiceProvider
             GenerateSitemap::class,
             UpdateUrlLastmod::class,
         ]);
+
+        $this->app->singleton(SitemapService::class, function ($app) {
+            return new SitemapService(new Sitemap());
+        });
     }
 
     /**

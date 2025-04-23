@@ -1,7 +1,7 @@
 {
     "name": "veiliglanceren/laravel-seo-sitemap",
     "description": "Laravel Sitemap package to optimize your website in search engines",
-    "version": "1.3.3",
+    "version": "1.4.0",
     "type": "library",
     "license": "MIT",
     "require": {
@@ -20,10 +20,7 @@
     "autoload": {
         "psr-4": {
             "VeiligLanceren\\LaravelSeoSitemap\\": "src/"
-        },
-        "files": [
-            "src/Support/Helpers/sitemap.php"
-        ]
+        }
     },
     "autoload-dev": {
         "psr-4": {
