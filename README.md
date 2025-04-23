@@ -96,9 +96,13 @@ php artisan sitemap:generate
 Or via code:
 
 ```php
-$sitemap = Sitemap::fromRoutes();
+use VeiligLanceren\LaravelSeoSitemap\Facades\Sitemap;
+
+$sitemap = Sitemap::fromRoutes()->getSitemap();
 $sitemap->save('sitemap.xml', 'public');
 ```
+
+`Sitemap::fromRoutes()` returns a `VeiligLanceren\LaravelSeoSitemap\Sitemap\Sitemap` containing the object data of the sitemap.
 
 ---
 
@@ -161,7 +165,7 @@ This sets the `lastmod` for the route to the current timestamp.
 
 ```blade
 <head>
-    {{ sitemap_meta_tag() }}
+    {!! Sitemap::meta() !!}
 </head>
 ```
 
