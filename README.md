@@ -1,4 +1,5 @@
-![Static Badge](https://img.shields.io/badge/Version-1.4.0-blue)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/veiliglanceren/laravel-seo-sitemap.svg?style=flat-square)](https://packagist.org/packages/veiliglanceren/laravel-seo-sitemap)
+[![Total Downloads](https://img.shields.io/packagist/dt/veiliglanceren/laravel-seo-sitemap.svg?style=flat-square)](https://packagist.org/packages/veiliglanceren/laravel-seo-sitemap)
 ![Static Badge](https://img.shields.io/badge/Laravel-12.*-blue)
 ![Static Badge](https://img.shields.io/badge/PHP->_8.3-blue)
 
@@ -15,7 +16,9 @@ A lightweight and extensible sitemap generator for Laravel that supports automat
 ## 🚀 Features
 
 - 🔍 Automatic sitemap generation from named routes via `->sitemap()` macro
-- 📦 Dynamic route support via `->dynamic()` macro
+- 🧩 [Model dynamic route](docs/template.md) support via `->sitemapUsing(Model::class)` macro
+- 🔁 [Template dynamic route](docs/template.md) support via `->sitemapUsing(SitemapItemTemplate::class)` macro
+- 📦 [Dynamic route](docs/dynamic-routes.md) support via `->dynamic()` macro
 - ✏️ Customize entries with `lastmod`, `priority`, `changefreq`
 - 🧼 Clean and compliant XML output
 - 💾 Store sitemaps to disk or serve via route
