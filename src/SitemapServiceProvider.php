@@ -9,6 +9,9 @@ use VeiligLanceren\LaravelSeoSitemap\Macros\RouteSitemap;
 use VeiligLanceren\LaravelSeoSitemap\Macros\RoutePriority;
 use VeiligLanceren\LaravelSeoSitemap\Macros\RouteChangefreq;
 use VeiligLanceren\LaravelSeoSitemap\Services\SitemapService;
+use VeiligLanceren\LaravelSeoSitemap\Macros\RouteSitemapUsing;
+use VeiligLanceren\LaravelSeoSitemap\Console\Commands\InstallSitemap;
+use VeiligLanceren\LaravelSeoSitemap\Console\Commands\TemplateSitemap;
 use VeiligLanceren\LaravelSeoSitemap\Console\Commands\GenerateSitemap;
 use VeiligLanceren\LaravelSeoSitemap\Console\Commands\UpdateUrlLastmod;
 
@@ -21,14 +24,16 @@ class SitemapServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/sitemap.php', 'sitemap');
 
-        $this->commands([
-            GenerateSitemap::class,
-            UpdateUrlLastmod::class,
-        ]);
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                InstallSitemap::class,
+                GenerateSitemap::class,
+                TemplateSitemap::class,
+                UpdateUrlLastmod::class,
+            ]);
+        }
 
-        $this->app->singleton(SitemapService::class, function ($app) {
-            return new SitemapService(new Sitemap());
-        });
+        $this->app->singleton(SitemapService::class, fn () => new SitemapService(new Sitemap()));
     }
 
     /**
@@ -55,6 +60,7 @@ class SitemapServiceProvider extends ServiceProvider
         }
 
         RouteSitemap::register();
+        RouteSitemapUsing::register();
         RoutePriority::register();
         RouteChangefreq::register();
         RouteDynamic::register();

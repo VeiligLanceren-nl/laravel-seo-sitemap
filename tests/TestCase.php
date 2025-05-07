@@ -6,6 +6,7 @@ use Illuminate\Support\InteractsWithTime;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 use Illuminate\Filesystem\FilesystemServiceProvider;
 use VeiligLanceren\LaravelSeoSitemap\Macros\RouteDynamic;
+use VeiligLanceren\LaravelSeoSitemap\Macros\RouteSitemapUsing;
 use VeiligLanceren\LaravelSeoSitemap\SitemapServiceProvider;
 
 class TestCase extends BaseTestCase
@@ -15,8 +16,6 @@ class TestCase extends BaseTestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        RouteDynamic::register();
     }
 
     /**

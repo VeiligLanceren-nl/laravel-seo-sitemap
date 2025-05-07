@@ -1,4 +1,5 @@
-![Static Badge](https://img.shields.io/badge/Version-1.4.0-blue)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/veiliglanceren/laravel-seo-sitemap.svg?style=flat-square)](https://packagist.org/packages/veiliglanceren/laravel-seo-sitemap)
+[![Total Downloads](https://img.shields.io/packagist/dt/veiliglanceren/laravel-seo-sitemap.svg?style=flat-square)](https://packagist.org/packages/veiliglanceren/laravel-seo-sitemap)
 ![Static Badge](https://img.shields.io/badge/Laravel-12.*-blue)
 ![Static Badge](https://img.shields.io/badge/PHP->_8.3-blue)
 
@@ -15,7 +16,9 @@ A lightweight and extensible sitemap generator for Laravel that supports automat
 ## 🚀 Features
 
 - 🔍 Automatic sitemap generation from named routes via `->sitemap()` macro
-- 📦 Dynamic route support via `->dynamic()` macro
+- 🧩 [Model dynamic route](docs/template.md) support via `->sitemapUsing(Model::class)` macro
+- 🔁 [Template dynamic route](docs/template.md) support via `->sitemapUsing(SitemapItemTemplate::class)` macro
+- 📦 [Dynamic route](docs/dynamic-routes.md) support via `->dynamic()` macro
 - ✏️ Customize entries with `lastmod`, `priority`, `changefreq`
 - 🧼 Clean and compliant XML output
 - 💾 Store sitemaps to disk or serve via route
@@ -29,6 +32,12 @@ A lightweight and extensible sitemap generator for Laravel that supports automat
 
 ```bash
 composer require veiliglanceren/laravel-seo-sitemap
+```
+
+Run the installer to publish the route stub and wire it into routes/web.php:
+
+```bash
+php artisan sitemap:install
 ```
 
 ---
@@ -61,7 +70,7 @@ php artisan migrate
 
 ## 🧭 Usage
 
-### 📄 Static Route Example
+### 📄 Static Route
 
 ```php
 use VeiligLanceren\LaravelSeoSitemap\Support\Enums\ChangeFrequency;
@@ -73,7 +82,25 @@ Route::get('/contact', [ContactController::class, 'index'])
     ->priority('0.8');
 ```
 
-### 🔄 Dynamic Route Example
+### 🧩 Template / Model Driven Route
+
+```php
+use App\Sitemap\ItemTemplates\PostTemplate;
+
+Route::get('/blog/{slug}', BlogController::class)
+    ->name('blog.show')
+    ->sitemapUsing(PostTemplate::class);
+```
+
+You may also point directly to an Eloquent model. The package will iterate over all() and generate URLs for each model instance:
+
+```php
+Route::get('/product/{product}', ProductController::class)
+    ->name('product.show')
+    ->sitemapUsing(\App\Models\Product::class);
+```
+
+### 🔄 Dynamic Route
 
 ```php
 use VeiligLanceren\Sitemap\Dynamic\StaticDynamicRoute;
@@ -194,6 +221,7 @@ SQLite must be enabled for in-memory testing.
 - [`docs/image.md`](docs/image.md)
 - [`docs/sitemapindex.md`](docs/sitemapindex.md)
 - [`docs/dynamic-routes.md`](docs/dynamic-routes.md)
+- [`docs/template.md`](docs/template.md)
 
 ---
 
