@@ -31,6 +31,12 @@ A lightweight and extensible sitemap generator for Laravel that supports automat
 composer require veiliglanceren/laravel-seo-sitemap
 ```
 
+Run the installer to publish the route stub and wire it into routes/web.php:
+
+```bash
+php artisan sitemap:install
+```
+
 ---
 
 ## ⚙️ Configuration
@@ -61,7 +67,7 @@ php artisan migrate
 
 ## 🧭 Usage
 
-### 📄 Static Route Example
+### 📄 Static Route
 
 ```php
 use VeiligLanceren\LaravelSeoSitemap\Support\Enums\ChangeFrequency;
@@ -73,7 +79,25 @@ Route::get('/contact', [ContactController::class, 'index'])
     ->priority('0.8');
 ```
 
-### 🔄 Dynamic Route Example
+### 🧩 Template / Model Driven Route
+
+```php
+use App\Sitemap\ItemTemplates\PostTemplate;
+
+Route::get('/blog/{slug}', BlogController::class)
+    ->name('blog.show')
+    ->sitemapUsing(PostTemplate::class);
+```
+
+You may also point directly to an Eloquent model. The package will iterate over all() and generate URLs for each model instance:
+
+```php
+Route::get('/product/{product}', ProductController::class)
+    ->name('product.show')
+    ->sitemapUsing(\App\Models\Product::class);
+```
+
+### 🔄 Dynamic Route
 
 ```php
 use VeiligLanceren\Sitemap\Dynamic\StaticDynamicRoute;
@@ -194,6 +218,7 @@ SQLite must be enabled for in-memory testing.
 - [`docs/image.md`](docs/image.md)
 - [`docs/sitemapindex.md`](docs/sitemapindex.md)
 - [`docs/dynamic-routes.md`](docs/dynamic-routes.md)
+- [`docs/template.md`](docs/template.md)
 
 ---
 
