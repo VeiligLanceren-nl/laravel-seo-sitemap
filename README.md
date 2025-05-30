@@ -1,7 +1,7 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/veiliglanceren/laravel-seo-sitemap.svg?style=flat-square)](https://packagist.org/packages/veiliglanceren/laravel-seo-sitemap)
 [![Total Downloads](https://img.shields.io/packagist/dt/veiliglanceren/laravel-seo-sitemap.svg?style=flat-square)](https://packagist.org/packages/veiliglanceren/laravel-seo-sitemap)
-![Static Badge](https://img.shields.io/badge/Laravel-12.*-blue)
-![Static Badge](https://img.shields.io/badge/PHP->_8.3-blue)
+![Static Badge](https://img.shields.io/badge/Laravel-^10|^11|^12.*-blue)
+![Static Badge](https://img.shields.io/badge/PHP->_8.1-blue)
 
 ![Veilig Lanceren](/veilig-lanceren-logo.png)
 
@@ -25,6 +25,9 @@ A lightweight and extensible sitemap generator for Laravel that supports automat
 - 🛠 Artisan command for `lastmod` updates
 - ✅ Fully tested using Pest and Laravel Testbench
 - 🌐 Default `/sitemap.xml` route included
+- 🚀 Laravel 10, Laravel 11 and Laravel 12 support
+  - `1.*` for Laravel 12.4
+  - `2.*` for Laravel 10, 11 and 12
 
 ---
 
