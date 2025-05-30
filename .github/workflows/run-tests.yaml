@@ -2,33 +2,56 @@ name: Run Tests
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - '*'
+    branches: [main]
 
 jobs:
-  pest:
-    name: Pest Tests on PHP ${{ matrix.php }}
+  tests:
+    name: PestPHP Tests
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        php: ['8.3', '8.4']
+        include:
+          - php: 8.1
+            laravel: 10.*
+          - php: 8.2
+            laravel: 10.*
+          - php: 8.3
+            laravel: 10.*
+          - php: 8.2
+            laravel: 11.*
+          - php: 8.3
+            laravel: 11.*
+          - php: 8.4
+            laravel: 11.*
+          - php: 8.2
+            laravel: 12.*
+          - php: 8.3
+            laravel: 12.*
+          - php: 8.4
+            laravel: 12.*
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Set up PHP
+      - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: mbstring, dom, pdo, pdo_mysql
+          extensions: mbstring, dom, fileinfo
+          tools: composer:v2
           coverage: none
 
+      # If Laravel 10 is being tested, we lock Pest and Pest Plugin to 2.x series.
+      # Otherwise, Laravel 11+ will use Pest 3.x automatically.
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-interaction
+        run: |
+          composer require "laravel/framework:${{ matrix.laravel }}" --no-update --no-interaction
+          composer update --prefer-dist --no-interaction --with-all-dependencies
 
-      - name: Run Pest Tests
-        run: vendor/bin/pest
+
+      - name: Run Pest tests
+        run: ./vendor/bin/pest
