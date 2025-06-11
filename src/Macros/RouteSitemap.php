@@ -9,6 +9,7 @@ use Illuminate\Routing\Route as RoutingRoute;
 use VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Url;
 use VeiligLanceren\LaravelSeoSitemap\Sitemap\DynamicRoute;
 use VeiligLanceren\LaravelSeoSitemap\Popo\RouteSitemapDefaults;
+use VeiligLanceren\LaravelSeoSitemap\Interfaces\SitemapProviderInterface;
 use VeiligLanceren\LaravelSeoSitemap\Sitemap\SitemapItemTemplate as TemplateContract;
 
 class RouteSitemap
@@ -171,9 +172,9 @@ class RouteSitemap
             });
         }
 
-        if (is_subclass_of($class, TemplateContract::class)) {
-            /** @var TemplateContract $template */
-            $template  = app($class);
+        $template = app($class);
+
+        if ($template instanceof TemplateContract) {
             $generated = collect($template->generate($route));
 
             return $generated->map(fn ($item): Url => $item instanceof Url
@@ -181,8 +182,10 @@ class RouteSitemap
                 : Url::make((string) $item));
         }
 
+        if ($template instanceof SitemapProviderInterface) {
+            return collect($template->getUrls());
+        }
+
         return collect();
     }
-
-
 }
