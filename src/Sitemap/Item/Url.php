@@ -157,4 +157,12 @@ class Url extends SitemapItem
 
         return $data;
     }
+
+    /**
+     * @return string
+     */
+    public function getLoc(): string
+    {
+        return $this->loc;
+    }
 }
