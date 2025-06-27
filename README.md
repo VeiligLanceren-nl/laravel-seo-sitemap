@@ -19,6 +19,7 @@ A lightweight and extensible sitemap generator for Laravel that supports automat
 - 🧩 [Model dynamic route](docs/template.md) support via `->sitemapUsing(Model::class)` macro
 - 🔁 [Template dynamic route](docs/template.md) support via `->sitemapUsing(SitemapItemTemplate::class)` macro
 - 📦 [Dynamic route](docs/dynamic-routes.md) support via `->dynamic()` macro
+- 📄 [Easy sitemap entries for paginated resource listings](docs/sitemap-pagination.md) with the `HasPaginatedSitemap` trait
 - ✏️ Customize entries with `lastmod`, `priority`, `changefreq`
 - 🧼 Clean and compliant XML output
 - 💾 Store sitemaps to disk or serve via route
@@ -28,6 +29,20 @@ A lightweight and extensible sitemap generator for Laravel that supports automat
 - 🚀 Laravel 10, Laravel 11 and Laravel 12 support
   - `1.*` for Laravel 12.4
   - `2.*` for Laravel 10, 11 and 12
+
+---
+
+## 📚 Documentation
+
+For advanced usage see the documentation below.
+
+- [`docs/sitemap.md`](docs/sitemap.md)
+- [`docs/url.md`](docs/url.md)
+- [`docs/image.md`](docs/image.md)
+- [`docs/sitemap-pagination.md`](docs/sitemap-pagination.md)
+- [`docs/sitemapindex.md`](docs/sitemapindex.md)
+- [`docs/dynamic-routes.md`](docs/dynamic-routes.md)
+- [`docs/template.md`](docs/template.md)
 
 ---
 
@@ -214,17 +229,6 @@ vendor/bin/pest
 ```
 
 SQLite must be enabled for in-memory testing.
-
----
-
-## 📚 Documentation
-
-- [`docs/sitemap.md`](docs/sitemap.md)
-- [`docs/url.md`](docs/url.md)
-- [`docs/image.md`](docs/image.md)
-- [`docs/sitemapindex.md`](docs/sitemapindex.md)
-- [`docs/dynamic-routes.md`](docs/dynamic-routes.md)
-- [`docs/template.md`](docs/template.md)
 
 ---
 
