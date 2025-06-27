@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use VeiligLanceren\LaravelSeoSitemap\Sitemap\Sitemap;
+use Tests\Fixtures\SitemapTemplates\BlogPostTemplate;
 
 beforeEach(function () {
     Route::middleware([])->group(function () {
@@ -16,7 +17,7 @@ beforeEach(function () {
 
             Route::get('/{category}/{post}', fn () => 'blog post')
                 ->name('support.blog.show')
-                ->sitemapUsing(\Tests\Fixtures\SitemapTemplates\BlogPostTemplate::class);
+                ->sitemapUsing(BlogPostTemplate::class);
         });
     });
 });

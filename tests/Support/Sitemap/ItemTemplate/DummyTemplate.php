@@ -21,6 +21,9 @@ class DummyTemplate implements SitemapItemTemplate
         ];
     }
 
+    /**
+     * @return Traversable
+     */
     public function getIterator(): Traversable
     {
         yield from $this->generate(app(LaravelRoute::class));
