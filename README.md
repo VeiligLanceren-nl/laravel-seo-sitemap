@@ -11,6 +11,17 @@ Want better Google rankings? Generating a clean and up-to-date sitemap is one of
 
 **Lightweight. Extensible. Template-driven.**
 
+## 🚀 Features of SEO Laravel Sitemap
+
+- 🔍 Automatic sitemap generation from named routes via `->sitemap()`
+- 🧩 Advanced route templates via `->sitemapUsing(MyTemplate::class)`
+- 🧠 Built-in `Template` abstract with helpers like `urlsFromModel()`
+- ✏️ Configure `lastmod`, `priority`, `changefreq` per URL
+- 💾 Save or serve sitemaps via disk or route
+- 🧪 Fully tested with Pest and Laravel Testbench
+- 📦 Optional meta-tag injection in `<head>`
+- ✅ Laravel 10, 11, and 12 support
+
 ## `📦` Installation of the Laravel sitemap package
 
 This package is quick to set up and works out-of-the-box with Laravel 10, 11, and 12. After installing via Composer, you can instantly publish the sitemap route and configuration using a single command. The `php artisan sitemap:install` command automatically adds a new `sitemap.php` route file and wires it into your existing web.php, so your sitemap is live without extra setup. It’s the easiest way to boost your SEO visibility with structured sitemap data.
