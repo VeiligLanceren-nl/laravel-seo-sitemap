@@ -3,32 +3,13 @@
 ![Laravel Versions](https://img.shields.io/badge/Laravel-^10|^11|^12.*-blue)
 ![PHP Versions](https://img.shields.io/badge/PHP->_8.1-blue)
 
-![Veilig Lanceren logo](/veilig-lanceren-logo.png)
-
-Want better Google rankings? Generating a clean and up-to-date sitemap is one of the easiest wins for your website’s SEO. With this package, your sitemap is always synced with your route and content structure, no manual edits needed. Search engines like Google and Bing use your sitemap to crawl your site smarter and faster, which means your new pages and updates show up in search results sooner. Whether you're running a blog, webshop, or custom platform, an automated sitemap gives you an edge in visibility and indexing accuracy.
-
 ---
 
 # Laravel SEO Sitemap
 
+Want better Google rankings? Generating a clean and up-to-date sitemap is one of the easiest wins for your website’s SEO. With this package, your sitemap is always synced with your route and content structure, no manual edits needed. Search engines like Google and Bing use your sitemap to crawl your site smarter and faster, which means your new pages and updates show up in search results sooner. Whether you're running a blog, webshop, or custom platform, an automated sitemap gives you an edge in visibility and indexing accuracy.
+
 **Lightweight. Extensible. Template-driven.**
-
-This package offers clean and fully testable sitemap generation for Laravel. It supports route-based sitemaps, model-driven templates, and custom XML options out-of-the-box.
-
----
-
-## `🚀` Features of Laravel SEO Sitemap
-
-- `🔍` Automatic sitemap generation from named routes via `->sitemap()`
-- `🧩` Advanced route templates via `->sitemapUsing(MyTemplate::class)`
-- `🧠` Built-in `Template` abstract with helpers like `urlsFromModel()`
-- `✏️` Configure `lastmod`, `priority`, `changefreq` per URL
-- `💾` Save or serve sitemaps via disk or route
-- `🧪` Fully tested with Pest and Laravel Testbench
-- `📦` Optional meta-tag injection in `<head>`
-- `✅` Laravel 10, 11, and 12 support
-
----
 
 ## `📦` Installation of the Laravel sitemap package
 
@@ -222,6 +203,6 @@ SQLite must be enabled for in-memory testing.
 
 ---
 
-## `📄` License
+## 📄 License
 
 MIT © [VeiligLanceren.nl](https://veiliglanceren.nl)
