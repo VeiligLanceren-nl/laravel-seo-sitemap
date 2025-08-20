@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Console\BufferedConsoleOutput;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 
@@ -22,9 +23,9 @@ it('does not overwrite an existing sitemap template class', function () {
     File::ensureDirectoryExists(dirname($path));
     File::put($path, 'original');
 
-    Artisan::call('sitemap:template', ['name' => 'ExistingTemplate']);
+    $output = new BufferedConsoleOutput();
+    Artisan::call('sitemap:template', ['name' => 'ExistingTemplate'], $output);
 
-    $output = Artisan::output();
-    expect($output)->toContain('already exists');
+    expect($output->fetch())->toContain('already exists');
     expect(File::get($path))->toBe('original');
 });
