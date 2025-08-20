@@ -27,8 +27,10 @@ it('does not overwrite an existing sitemap template class', function () {
     $command = resolve(TemplateSitemap::class);
     $command->setLaravel(app());
     $tester = new CommandTester($command);
-    $tester->execute(['name' => 'ExistingTemplate']);
+    $tester->execute(['name' => 'ExistingTemplate'], ['capture_stderr_separately' => true]);
 
-    expect($tester->getDisplay())->toContain('already exists');
+    $output = $tester->getDisplay() . $tester->getErrorOutput();
+
+    expect($output)->toContain('already exists');
     expect(File::get($path))->toBe('original');
 });
