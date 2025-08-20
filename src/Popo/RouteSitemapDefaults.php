@@ -26,4 +26,9 @@ class RouteSitemapDefaults extends BasePopo
      * @var ChangeFrequency|null
      */
     public ?ChangeFrequency $changefreq = null;
+
+    /**
+     * @var string|null
+     */
+    public ?string $index = null;
 }

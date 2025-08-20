@@ -153,6 +153,20 @@ $sitemapIndex->add('https://example.com/sitemap-products.xml');
 Storage::disk('public')->put('sitemap.xml', $sitemapIndex->toXml());
 ```
 
+Alternatively, mark routes with an index and let the CLI generate the index and files for you:
+
+```php
+Route::get('/blog', fn () => 'Blog')
+    ->sitemapIndex('blog');
+
+Route::get('/pages', fn () => 'Pages')
+    ->sitemapIndex('pages');
+
+// php artisan sitemap:generate
+```
+
+This will produce `sitemap-blog.xml`, `sitemap-pages.xml` and an `sitemap.xml` index linking to them.
+
 📖 Read more: [docs/sitemapindex.md](docs/sitemapindex.md)
 
 ---

@@ -50,7 +50,13 @@ class RouteSitemap
                 $urls = collect();
 
                 if ($template = $route->defaults['sitemap_generator'] ?? null) {
-                    return static::generateFromTemplate($route, $template);
+                    $defaults = $route->defaults['sitemap'] ?? null;
+
+                    return static::generateFromTemplate(
+                        $route,
+                        $template,
+                        $defaults instanceof RouteSitemapDefaults ? $defaults : null
+                    );
                 }
 
                 if (
@@ -103,6 +109,10 @@ class RouteSitemap
                             if ($defaults->changefreq !== null) {
                                 $url->changefreq($defaults->changefreq);
                             }
+
+                            if ($defaults->index !== null) {
+                                $url->index($defaults->index);
+                            }
                         }
 
                         return $url;
@@ -150,6 +160,10 @@ class RouteSitemap
             $url->changefreq($defaults->changefreq);
         }
 
+        if ($defaults->index !== null) {
+            $url->index($defaults->index);
+        }
+
         return $url;
     }
 
@@ -158,14 +172,22 @@ class RouteSitemap
      * @param class-string $class
      * @return Collection<Url>
      */
-    private static function generateFromTemplate(RoutingRoute $route, string $class): Collection
+    private static function generateFromTemplate(
+        RoutingRoute $route,
+        string $class,
+        RouteSitemapDefaults $defaults = null,
+    ): Collection
     {
         if (is_subclass_of($class, Model::class)) {
             /** @var Model $class */
-            return $class::query()->get()->map(function (Model $model) use ($route): Url {
+            return $class::query()->get()->map(function (Model $model) use ($route, $defaults): Url {
                 $url = Url::make(route($route->getName(), $model));
                 if ($model->getAttribute('updated_at')) {
                     $url->lastmod($model->getAttribute('updated_at'));
+                }
+
+                if ($defaults && $defaults->index !== null) {
+                    $url->index($defaults->index);
                 }
 
                 return $url;
@@ -177,13 +199,25 @@ class RouteSitemap
         if ($template instanceof TemplateContract) {
             $generated = collect($template->generate($route));
 
-            return $generated->map(fn ($item): Url => $item instanceof Url
+            $urls = $generated->map(fn ($item): Url => $item instanceof Url
                 ? $item
                 : Url::make((string) $item));
+
+            if ($defaults && $defaults->index !== null) {
+                $urls = $urls->each(fn (Url $url) => $url->index($defaults->index));
+            }
+
+            return $urls;
         }
 
         if ($template instanceof SitemapProviderInterface) {
-            return collect($template->getUrls());
+            $urls = collect($template->getUrls());
+
+            if ($defaults && $defaults->index !== null) {
+                $urls = $urls->each(fn (Url $url) => $url->index($defaults->index));
+            }
+
+            return $urls;
         }
 
         return collect();
