@@ -1,5 +1,6 @@
 <?php
 
+use ArrayIterator;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
 use VeiligLanceren\LaravelSeoSitemap\Sitemap\Sitemap;
@@ -174,6 +175,59 @@ it('throws an exception when addMany exceeds max item count', function () {
     $sitemap->addMany($urls);
 })->throws(SitemapTooLargeException::class);
 
+it('adds items from a countable iterator', function () {
+    $iterator = new ArrayIterator([
+        Url::make('https://example.com/iter-1'),
+        Url::make('https://example.com/iter-2'),
+    ]);
+
+    $sitemap = Sitemap::make();
+    $sitemap->addMany($iterator);
+
+    $items = $sitemap->toArray()['items'];
+    expect($items)->toHaveCount(2);
+    expect($items[1]['loc'])->toBe('https://example.com/iter-2');
+});
+
+it('throws an exception when countable iterator exceeds max item count', function () {
+    $iterator = new ArrayIterator([
+        Url::make('https://example.com/iter-a'),
+        Url::make('https://example.com/iter-b'),
+        Url::make('https://example.com/iter-c'),
+        Url::make('https://example.com/iter-d'),
+    ]);
+
+    $sitemap = Sitemap::make()->enforceLimit(3, true);
+    $sitemap->addMany($iterator);
+})->throws(SitemapTooLargeException::class);
+
+it('adds items from a generator', function () {
+    $generator = function () {
+        for ($i = 1; $i <= 3; $i++) {
+            yield Url::make("https://example.com/gen-{$i}");
+        }
+    };
+
+    $sitemap = Sitemap::make();
+    $sitemap->addMany($generator());
+
+    $items = $sitemap->toArray()['items'];
+    expect($items)->toHaveCount(3);
+    expect($items[0]['loc'])->toBe('https://example.com/gen-1');
+    expect($items[2]['loc'])->toBe('https://example.com/gen-3');
+});
+
+it('throws an exception when generator exceeds max item count', function () {
+    $generator = function () {
+        for ($i = 1; $i <= 4; $i++) {
+            yield Url::make("https://example.com/gen-{$i}");
+        }
+    };
+
+    $sitemap = Sitemap::make()->enforceLimit(3, true);
+    $sitemap->addMany($generator());
+})->throws(SitemapTooLargeException::class);
+
 it('does not throw if throwOnLimit is false', function () {
     $sitemap = Sitemap::make()
         ->enforceLimit(2, false);
@@ -203,4 +257,14 @@ it('can bypass the limit using bypassLimit', function () {
     }
 
     expect($sitemap->toArray()['items'])->toHaveCount(550);
+});
+
+it('disables the limit when maxItems is null', function () {
+    $sitemap = Sitemap::make()->enforceLimit(null);
+
+    for ($i = 1; $i <= 600; $i++) {
+        $sitemap->add(Url::make("https://example.com/unlimited-{$i}"));
+    }
+
+    expect($sitemap->toArray()['items'])->toHaveCount(600);
 });

@@ -188,13 +188,14 @@ class Sitemap
      */
     public function addMany(iterable $items): void
     {
+        if (! is_countable($items) && $items instanceof Traversable) {
+            $items = iterator_to_array($items);
+        }
+
         $count = is_countable($items)
             ? count($items)
-            : iterator_count(
-                $items instanceof Traversable
-                    ? $items
-                    : new ArrayIterator($items)
-            );
+            : iterator_count($items instanceof Traversable ? $items : new ArrayIterator($items));
+
         $this->guardMaxItems($count);
 
         foreach ($items as $item) {

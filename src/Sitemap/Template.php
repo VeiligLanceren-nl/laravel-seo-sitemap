@@ -7,6 +7,7 @@ use Illuminate\Routing\Route;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Url;
+use VeiligLanceren\LaravelSeoSitemap\Exceptions\TestRouteNotSetException;
 
 abstract class Template implements SitemapItemTemplate
 {
@@ -31,7 +32,7 @@ abstract class Template implements SitemapItemTemplate
     public function getIterator(): Traversable
     {
         if (!$this->testRoute) {
-            throw new \RuntimeException('Test route not set via setTestRoute().');
+            throw new TestRouteNotSetException();
         }
 
         yield from $this->generate($this->testRoute);

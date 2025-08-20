@@ -5,6 +5,7 @@ namespace VeiligLanceren\LaravelSeoSitemap\Macros;
 use Closure;
 use Illuminate\Routing\Route;
 use VeiligLanceren\LaravelSeoSitemap\Sitemap\DynamicRoute;
+use VeiligLanceren\LaravelSeoSitemap\Exceptions\InvalidDynamicRouteCallbackException;
 
 class RouteDynamic
 {
@@ -22,9 +23,7 @@ class RouteDynamic
                 !($result instanceof DynamicRoute) &&
                 !(is_iterable($result))
             ) {
-                throw new \InvalidArgumentException(
-                    'The callback for ->dynamic() must return a DynamicRoute or iterable of parameter arrays.'
-                );
+                throw new InvalidDynamicRouteCallbackException();
             }
 
             $this->defaults['sitemap.dynamic'] = $callback;

@@ -8,6 +8,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Routing\Route as LaravelRoute;
 use VeiligLanceren\LaravelSeoSitemap\Sitemap\Template;
 use VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Url;
+use VeiligLanceren\LaravelSeoSitemap\Exceptions\TestRouteNotSetException;
 
 beforeEach(function () {
     Schema::create('dummy_models', function (Blueprint $table) {
@@ -35,6 +36,11 @@ beforeEach(function () {
 
 afterEach(function () {
     Schema::dropIfExists('dummy_models');
+});
+
+it('throws if test route is not set before iteration', function () {
+    expect(fn () => iterator_to_array($this->template->getIterator()))
+        ->toThrow(TestRouteNotSetException::class);
 });
 
 it('can iterate over generate results using getIterator', function () {
