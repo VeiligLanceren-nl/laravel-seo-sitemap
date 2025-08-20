@@ -139,16 +139,14 @@ Generate an index that references multiple sitemap files (e.g. per section):
 ```php
 use VeiligLanceren\LaravelSeoSitemap\Sitemap\SitemapIndex;
 
-$sitemapIndex = SitemapIndex::make([
-    'https://example.com/sitemap-pages.xml',
-    'https://example.com/sitemap-posts.xml',
-]);
+$sitemapIndex = SitemapIndex::make('https://example.com/sitemap-pages.xml')
+    ->add('https://example.com/sitemap-posts.xml');
 ```
 
-You can dynamically add entries and pretty-print XML:
+You can dynamically add entries with an optional `lastmod` and pretty-print XML:
 
 ```php
-$sitemapIndex->add('https://example.com/sitemap-products.xml');
+$sitemapIndex->add('https://example.com/sitemap-products.xml', now());
 
 Storage::disk('public')->put('sitemap.xml', $sitemapIndex->toXml());
 ```

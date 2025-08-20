@@ -15,21 +15,18 @@ The `SitemapIndex` class generates an [XML Sitemap Index](https://www.sitemaps.o
 
 ## 🧱 Class: `SitemapIndex`
 
-### 🔨 `SitemapIndex::make(array $locations = [], array $options = []): static`
-Creates a new sitemap index instance.
+### 🔨 `SitemapIndex::make(string $loc = null, DateTimeInterface|string|null $lastmod = null, array $options = []): static`
+Creates a new sitemap index instance and optionally adds the first sitemap.
 
 ```php
-SitemapIndex::make([
-    'https://example.com/sitemap-posts.xml',
-    'https://example.com/sitemap-pages.xml',
-], ['pretty' => true]);
+SitemapIndex::make('https://example.com/sitemap-posts.xml', '2024-01-01', ['pretty' => true]);
 ```
 
-### ➕ `add(string $loc): static`
-Adds a single sitemap location.
+### ➕ `add(string $loc, DateTimeInterface|string|null $lastmod = null): static`
+Adds a single sitemap location with an optional `<lastmod>` date.
 
 ```php
-$index->add('https://example.com/sitemap-images.xml');
+$index->add('https://example.com/sitemap-images.xml', now());
 ```
 
 ### 🔁 `toArray(): array`
@@ -39,8 +36,8 @@ Returns the sitemap index as an array:
 [
     'options' => [],
     'sitemaps' => [
-        'https://example.com/sitemap-posts.xml',
-        'https://example.com/sitemap-pages.xml',
+        ['loc' => 'https://example.com/sitemap-posts.xml', 'lastmod' => '2024-01-01'],
+        ['loc' => 'https://example.com/sitemap-pages.xml'],
     ]
 ]
 ```
@@ -53,6 +50,7 @@ Returns a valid `sitemapindex` XML document.
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <sitemap>
         <loc>https://example.com/sitemap-posts.xml</loc>
+        <lastmod>2024-01-01</lastmod>
     </sitemap>
     <sitemap>
         <loc>https://example.com/sitemap-pages.xml</loc>
@@ -89,7 +87,10 @@ $sitemapIndex = SitemapIndex::make();
 foreach ($sections as $section) {
     Sitemap::make($section->urls())->save("sitemap-{$section->slug}.xml", 'public');
 
-    $sitemapIndex->add(URL::to("/storage/sitemap-{$section->slug}.xml"));
+    $sitemapIndex->add(
+        URL::to("/storage/sitemap-{$section->slug}.xml"),
+        $section->updated_at
+    );
 }
 
 $sitemapIndex->toXml();
