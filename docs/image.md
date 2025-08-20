@@ -23,6 +23,14 @@ $url = Url::make('https://example.com')
     ->addImage(Image::make('https://example.com/image2.jpg')->caption('Scene 2'));
 ```
 
+### Adding images via route macros
+
+```php
+Route::get('/about', AboutController::class)
+    ->name('about')
+    ->image('https://example.com/hero.jpg');
+```
+
 ---
 
 ## 🧾 XML Output

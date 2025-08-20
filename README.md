@@ -189,7 +189,9 @@ php artisan sitemap:generate
 
 ---
 
-## `🖼` Add images to the sitemap 
+## `🖼` Add images to the sitemap
+
+### Using `Url` instances directly
 
 ```php
 use VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Url;
@@ -198,6 +200,14 @@ use VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Image;
 $url = Url::make('https://example.com')
     ->addImage(Image::make('https://example.com/image1.jpg')->title('Hero 1'))
     ->addImage(Image::make('https://example.com/image2.jpg')->title('Hero 2'));
+```
+
+### Via route macros
+
+```php
+Route::get('/about', AboutController::class)
+    ->name('about')
+    ->image('https://example.com/hero.jpg');
 ```
 
 ---

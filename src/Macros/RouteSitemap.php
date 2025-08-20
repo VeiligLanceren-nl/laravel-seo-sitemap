@@ -164,6 +164,12 @@ class RouteSitemap
             $url->index($defaults->index);
         }
 
+        if (!empty($defaults->images)) {
+            foreach ($defaults->images as $image) {
+                $url->addImage($image);
+            }
+        }
+
         return $url;
     }
 

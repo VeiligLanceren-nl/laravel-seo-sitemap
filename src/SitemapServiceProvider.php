@@ -9,6 +9,7 @@ use VeiligLanceren\LaravelSeoSitemap\Macros\RouteSitemap;
 use VeiligLanceren\LaravelSeoSitemap\Macros\RoutePriority;
 use VeiligLanceren\LaravelSeoSitemap\Macros\RouteChangefreq;
 use VeiligLanceren\LaravelSeoSitemap\Macros\RouteSitemapIndex;
+use VeiligLanceren\LaravelSeoSitemap\Macros\RouteImage;
 use VeiligLanceren\LaravelSeoSitemap\Services\SitemapService;
 use VeiligLanceren\LaravelSeoSitemap\Macros\RouteSitemapUsing;
 use VeiligLanceren\LaravelSeoSitemap\Console\Commands\InstallSitemap;
@@ -65,6 +66,7 @@ class SitemapServiceProvider extends ServiceProvider
         RoutePriority::register();
         RouteChangefreq::register();
         RouteDynamic::register();
+        RouteImage::register();
         RouteSitemapIndex::register();
     }
 }
