@@ -9,7 +9,7 @@ use VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Url;use VeiligLanceren\Laravel
 
 $sitemap = Sitemap::make([
     Url::make('https://example.com')
-        ->lastmod('2024-01-01')
+        ->lastmod('2024-05-01')
         ->priority('0.8')
         ->changefreq(ChangeFrequency::WEEKLY),
 ]);

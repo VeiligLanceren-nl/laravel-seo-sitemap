@@ -110,6 +110,10 @@ class RouteSitemap
                                 $url->changefreq($defaults->changefreq);
                             }
 
+                            if ($defaults->lastmod !== null) {
+                                $url->lastmod($defaults->lastmod);
+                            }
+
                             if ($defaults->index !== null) {
                                 $url->index($defaults->index);
                             }
@@ -158,6 +162,10 @@ class RouteSitemap
 
         if ($defaults->changefreq !== null) {
             $url->changefreq($defaults->changefreq);
+        }
+
+        if ($defaults->lastmod !== null) {
+            $url->lastmod($defaults->lastmod);
         }
 
         if ($defaults->index !== null) {

@@ -30,5 +30,10 @@ class RouteSitemapDefaults extends BasePopo
     /**
      * @var string|null
      */
+    public ?string $lastmod = null;
+
+    /**
+     * @var string|null
+     */
     public ?string $index = null;
 }
