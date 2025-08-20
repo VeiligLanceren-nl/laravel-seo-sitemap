@@ -4,6 +4,7 @@ namespace VeiligLanceren\LaravelSeoSitemap\Popo;
 
 use Scrumble\Popo\BasePopo;
 use VeiligLanceren\LaravelSeoSitemap\Support\Enums\ChangeFrequency;
+use VeiligLanceren\LaravelSeoSitemap\Sitemap\Item\Image;
 
 class RouteSitemapDefaults extends BasePopo
 {
@@ -31,4 +32,9 @@ class RouteSitemapDefaults extends BasePopo
      * @var string|null
      */
     public ?string $index = null;
+
+    /**
+     * @var Image[]
+     */
+    public array $images = [];
 }
