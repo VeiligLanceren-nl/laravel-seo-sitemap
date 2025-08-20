@@ -59,3 +59,36 @@ it('generates pretty XML when --pretty is passed', function () {
     expect($content)->toContain('<urlset');
     expect($content)->toContain('<loc>' . url('/test-sitemap-command') . '</loc>');
 });
+
+it('generates a sitemap index when routes use indexes', function () {
+    Storage::fake('public');
+
+    Route::get('/alpha', fn () => 'Alpha')
+        ->name('alpha')
+        ->sitemapIndex('alpha');
+
+    Route::get('/beta', fn () => 'Beta')
+        ->name('beta')
+        ->sitemapIndex('beta');
+
+    Artisan::call('sitemap:generate');
+
+    Storage::disk('public')->assertExists('sitemap.xml');
+    Storage::disk('public')->assertExists('sitemap-alpha.xml');
+    Storage::disk('public')->assertExists('sitemap-beta.xml');
+    Storage::disk('public')->assertExists('sitemap-default.xml');
+
+    $index = Storage::disk('public')->get('sitemap.xml');
+    expect($index)->toContain('<loc>' . url('/sitemap-alpha.xml') . '</loc>');
+    expect($index)->toContain('<loc>' . url('/sitemap-beta.xml') . '</loc>');
+    expect($index)->toContain('<loc>' . url('/sitemap-default.xml') . '</loc>');
+
+    $alpha = Storage::disk('public')->get('sitemap-alpha.xml');
+    expect($alpha)->toContain('<loc>' . url('/alpha') . '</loc>');
+
+    $beta = Storage::disk('public')->get('sitemap-beta.xml');
+    expect($beta)->toContain('<loc>' . url('/beta') . '</loc>');
+
+    $default = Storage::disk('public')->get('sitemap-default.xml');
+    expect($default)->toContain('<loc>' . url('/test-sitemap-command') . '</loc>');
+});

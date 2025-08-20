@@ -34,6 +34,11 @@ class Url extends SitemapItem
     protected array $images = [];
 
     /**
+     * @var string|null
+     */
+    protected ?string $index = null;
+
+    /**
      * @param string $loc
      * @param string|DateTimeInterface|null $lastmod
      * @param string|null $priority
@@ -61,6 +66,17 @@ class Url extends SitemapItem
         }
 
         return $sitemap;
+    }
+
+    /**
+     * @param string $index
+     * @return $this
+     */
+    public function index(string $index): static
+    {
+        $this->index = $index;
+
+        return $this;
     }
 
     /**
@@ -164,5 +180,13 @@ class Url extends SitemapItem
     public function getLoc(): string
     {
         return $this->loc;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getIndex(): ?string
+    {
+        return $this->index;
     }
 }
