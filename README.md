@@ -92,6 +92,16 @@ Route::get('/contact', ContactController::class)
     ->priority('0.8');
 ```
 
+##### `->lastmod(string|DateTimeInterface $date)`
+Sets the last modification date of the URL.
+
+```php
+Route::get('/about', AboutController::class)
+    ->name('about')
+    ->sitemap()
+    ->lastmod('2024-05-01');
+```
+
 > 💡 These macros can be chained for fluent configuration and better readability.
 
 ### `🧩` Model-driven Template class for easy implementation in sitemap
