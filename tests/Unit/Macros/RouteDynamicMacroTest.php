@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use VeiligLanceren\LaravelSeoSitemap\Sitemap\DynamicRouteChild;
 use VeiligLanceren\LaravelSeoSitemap\Sitemap\StaticDynamicRoute;
+use VeiligLanceren\LaravelSeoSitemap\Exceptions\InvalidDynamicRouteCallbackException;
 
 beforeEach(function () {
     test()->testDynamicRoute = Route::get('/test/{slug}', fn () => 'ok')
@@ -47,4 +48,11 @@ it('supports raw array return and generates parameter sets', function () {
     expect($result)->toBeArray()
         ->and($result)->toHaveCount(2)
         ->and($result[0])->toBe(['slug' => 'a']);
+});
+
+it('throws a custom exception when callback returns invalid type', function () {
+    expect(fn () => Route::get('/bad/{slug}', fn () => 'ok')
+        ->name('bad.route')
+        ->dynamic(fn () => 123))
+        ->toThrow(InvalidDynamicRouteCallbackException::class);
 });
