@@ -56,7 +56,7 @@ class GenerateSitemap extends Command
         $directory = pathinfo($path, PATHINFO_DIRNAME);
         $directory = $directory === '.' ? '' : $directory . '/';
 
-        $index = SitemapIndex::make([], ['pretty' => $pretty]);
+        $index = SitemapIndex::make(null, null, ['pretty' => $pretty]);
 
         foreach ($groups as $name => $groupUrls) {
             $fileName = sprintf('%s%s-%s.%s', $directory, $baseName, $name, $extension);
