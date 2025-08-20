@@ -1,8 +1,9 @@
 <?php
 
-use Illuminate\Console\BufferedConsoleOutput;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
+use Symfony\Component\Console\Tester\CommandTester;
+use VeiligLanceren\LaravelSeoSitemap\Console\Commands\TemplateSitemap;
 
 beforeEach(function () {
     File::deleteDirectory(app_path('SitemapTemplates'));
@@ -23,9 +24,11 @@ it('does not overwrite an existing sitemap template class', function () {
     File::ensureDirectoryExists(dirname($path));
     File::put($path, 'original');
 
-    $output = new BufferedConsoleOutput();
-    Artisan::call('sitemap:template', ['name' => 'ExistingTemplate'], $output);
+    $command = resolve(TemplateSitemap::class);
+    $command->setLaravel(app());
+    $tester = new CommandTester($command);
+    $tester->execute(['name' => 'ExistingTemplate']);
 
-    expect($output->fetch())->toContain('already exists');
+    expect($tester->getDisplay())->toContain('already exists');
     expect(File::get($path))->toBe('original');
 });
